@@ -8,6 +8,8 @@
 
 const char DELIM = '.';     //test comm
 
+//privet
+
 struct clientInfo
 {
     QString name;
