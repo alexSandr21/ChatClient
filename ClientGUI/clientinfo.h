@@ -1,10 +1,12 @@
 #ifndef CLIENTINFO_H
 #define CLIENTINFO_H
+
+
 #include <QString>
 #include <QtNetwork/QTcpSocket>
 #include <QDataStream>
 
-const char DELIM = '.';
+const char DELIM = '.';     //test comm
 
 struct clientInfo
 {
