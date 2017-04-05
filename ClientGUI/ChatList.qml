@@ -11,6 +11,11 @@ Rectangle
     height:  parent.height
 
     property alias model: listView.model
+    function clear()
+    {
+        chatList.model.clear()
+        presenter.slotSetReceiver("")
+    }
         ListView
         {
             id: listView

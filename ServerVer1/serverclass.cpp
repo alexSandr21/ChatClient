@@ -45,6 +45,7 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
 
     if(!strVec.size())
     {
+        //write error in log file
         return;
     }
 
@@ -88,7 +89,11 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
         this->m_ptxtInfo->append("Client "+strVec[0]+" login to the server");
     }
     else
+    {
+        //write label error in log file
         return;
+    }
+
 
     this->m_mapClients.insert(strVec[0], StructUI);
 
@@ -126,35 +131,42 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
 
 void ServerClass::ReadClientMESSAGE(QDataStream &in, const int &typeMsg)
 {
-    QString strMsg, strSender, strReciever;
-    QVector<QString> strVec;
-    QByteArray file;
+    try
+    {
+        QString strMsg, strSender, strReciever;
+        QVector<QString> strVec;
+        QByteArray file;
 
-    in>>strMsg;
+        in>>strMsg;
 
-    if(typeMsg == L_FILE)
-        file = in.device()->readAll();
+        if(typeMsg == L_FILE)
+            file = in.device()->readAll();
 
-    strVec = strMsg.split(DELIM).toVector();
-    strSender = strVec[0];
-    strReciever = strVec[1];
-
-
-    qDebug()<<"Client "<<strSender<<" send message to "<<strReciever;
-    this->m_ptxtInfo->append("Client "+strSender+" send message to "+strReciever);
-
-    QByteArray arrBlock;
-    QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_DefaultCompiledVersion);
-    strMsg = strVec[0] + DELIM + strVec[2];
-
-    out<<strMsg;
-
-    if(typeMsg == L_FILE)
-        arrBlock.append(file);
+        strVec = strMsg.split(DELIM).toVector();
+        strSender = strVec[0];
+        strReciever = strVec[1];
 
 
-    SendToClient(this->m_mapClients.value(strVec[1]).pClientSocket, typeMsg, arrBlock);
+        qDebug()<<"Client "<<strSender<<" send message to "<<strReciever;
+        this->m_ptxtInfo->append("Client "+strSender+" send message to "+strReciever);
+
+        QByteArray arrBlock;
+        QDataStream out(&arrBlock, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_DefaultCompiledVersion);
+        strMsg = strVec[0] + DELIM + strVec[2];
+
+        out<<strMsg;
+
+        if(typeMsg == L_FILE)
+            arrBlock.append(file);
+
+
+        SendToClient(this->m_mapClients.value(strVec[1]).pClientSocket, typeMsg, arrBlock);
+    }
+    catch(QException &ex)
+    {
+        //write error in log file
+    }
 
 }
 
@@ -162,19 +174,26 @@ void ServerClass::ReadClientMESSAGE(QDataStream &in, const int &typeMsg)
 
 void ServerClass::SendToClient(QTcpSocket *pClientSocket,const int &type, const QByteArray &arrBlockMsg)
 {
-    QByteArray arrBlock;
-    QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_DefaultCompiledVersion);
-    out<<quint32(0)<<type<<QTime::currentTime();
+    try
+    {
+        QByteArray arrBlock;
+        QDataStream out(&arrBlock, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_DefaultCompiledVersion);
+        out<<quint32(0)<<type<<QTime::currentTime();
 
 
-    if(!arrBlockMsg.isEmpty())
-        arrBlock.append(arrBlockMsg);
+        if(!arrBlockMsg.isEmpty())
+            arrBlock.append(arrBlockMsg);
 
-    out.device()->seek(0);
-    out<<quint32(arrBlock.size() - sizeof(quint32));
+        out.device()->seek(0);
+        out<<quint32(arrBlock.size() - sizeof(quint32));
 
-    pClientSocket->write(arrBlock);
+        pClientSocket->write(arrBlock);
+    }
+    catch(QException &ex)
+    {
+        //write error in lol file
+    }
 }
 
 
@@ -203,10 +222,18 @@ void ServerClass::slotNewConnection()
 {
     QTcpSocket* pClientSocket = this->m_pTcpServer->nextPendingConnection();
 
-    connect(pClientSocket, SIGNAL(disconnected()), SLOT(slotDissconnectClient()));
-    connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
-    connect(pClientSocket, SIGNAL(readyRead()), SLOT(slotReadClient()));
-    qDebug()<<"Client connect to Server";
+    if(pClientSocket)
+    {
+        connect(pClientSocket, SIGNAL(disconnected()), SLOT(slotDissconnectClient()));
+        connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
+        connect(pClientSocket, SIGNAL(readyRead()), SLOT(slotReadClient()));
+        qDebug()<<"Client connect to Server";
+    }
+    else
+    {
+        //write error in log file
+    }
+
 }
 
 
@@ -242,8 +269,6 @@ void ServerClass::slotReadClient()
 
          m_nNextBlockSize = 0;
     }
-
-   // m_nNextBlockSize = 0;
 }
 
 
@@ -251,9 +276,9 @@ void ServerClass::slotDissconnectClient()
 {
     QTcpSocket* pClientSocket = static_cast<QTcpSocket*>(sender());
 
-    QMap<QString,UserInfo>::iterator it;
+    auto it = m_mapClients.begin();
 
-    for(it = m_mapClients.begin(); it != m_mapClients.end(); ++it)
+    for( ; it != m_mapClients.end(); ++it)
     {
         if(it.value().pClientSocket == pClientSocket)
         {
@@ -265,8 +290,10 @@ void ServerClass::slotDissconnectClient()
     {
         return;
     }
+
+    it.value().pClientSocket->close();
     it.value().pClientSocket = nullptr;
-    m_ptxtInfo->append("Client "+it.key()+" dissconnect from the server");
+    m_ptxtInfo->append("Client "+it.key()+" disconnect from the server");
 
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);

@@ -29,7 +29,6 @@ Rectangle
         }
 
         radius: 5
-
         color:"#512A41"
 
         Text
@@ -38,23 +37,24 @@ Rectangle
             anchors.centerIn: parent
             text:"Attach"
             color: "lightgray"
+        }
 
-            MouseArea
+        MouseArea
+        {
+            anchors.fill: parent
+            onPressed:
             {
-                anchors.fill: parent
-                onPressed:
-                {
-                   attachButton.color =  "#6E3A59"
-                }
-                onReleased:
-                {
-                    attachButton.color = "#512A41"
+               attachButton.color =  "#6E3A59"
+            }
+            onReleased:
+            {
+                attachButton.color = "#512A41"
 
-                    if(presenter.methIsOnline(presenter.methGetReceiver()))
-                        fileDialog.visible = true;
-                }
+                if(presenter.methIsOnline(presenter.methGetReceiver()))
+                    fileDialog.visible = true;
             }
         }
+
 
     }
 

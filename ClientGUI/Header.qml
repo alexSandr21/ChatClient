@@ -20,9 +20,15 @@ Rectangle
     }
     MouseArea
     {
-        anchors.fill:parent
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onClicked: presenter.slotGetUsers()
+        anchors.fill: parent
+        onClicked:
+        {
+            presenter.slotSetReceiver("")
+            messageList.clear()
+            messageEnter.clear()
+            messageList.friendStatus = "Choose interlocutor"
+        }
+
     }
 }
 

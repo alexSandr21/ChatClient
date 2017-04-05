@@ -5,19 +5,28 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    try
+    {
+        QGuiApplication app(argc, argv);
 
 
-    Presenter presenter;
+        Presenter presenter;
 
-    QQmlApplicationEngine engine;
+        QQmlApplicationEngine engine;
 
-    QQmlContext *context = engine.rootContext();
+        QQmlContext *context = engine.rootContext();
 
-    context->setContextProperty("presenter", &presenter);
+        context->setContextProperty("presenter", &presenter);
 
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+        engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    return app.exec();
+        return app.exec();
+    }
+    catch(QException &ex)
+    {
+        //write fatal error in log file
+        return -1;
+    }
+
 
 }

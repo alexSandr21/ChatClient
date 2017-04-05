@@ -18,7 +18,7 @@ bool MessagesDataBase::CreateTabel(const QString &tabelName)
 {
     bool res = true;
 
-    name+='t'+tabelName;
+    name='t'+tabelName;
 
     QString str("CREATE TABLE "+name+" (interlocutor VARCHAR, "
                                          "myAnswer INTEGER, "
@@ -28,7 +28,11 @@ bool MessagesDataBase::CreateTabel(const QString &tabelName)
 
     if(!query.exec(str))
         if(query.lastError().number()!=-1)
-            res = false;
+        {
+            //write error in log file
+             res = false;
+        }
+
 
 
     return res;
@@ -47,8 +51,8 @@ void MessagesDataBase::Insert(const MessageStruct & mess)
 
     if(!query.exec())
     {
-    QString str = query.lastError().text();
-    qDebug()<<"sdfs";
+        QString str = query.lastError().text();
+        //write error in log file
     }
 
 
@@ -79,7 +83,7 @@ QVector<MessageStruct> MessagesDataBase::GetMessages(const QString &interlocutor
    else
    {
        QString str = query.lastError().text();
-       qDebug()<<str;
+      //write error in log file
    }
    return messages;
 }

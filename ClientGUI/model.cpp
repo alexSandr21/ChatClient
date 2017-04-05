@@ -9,8 +9,6 @@ Model::Model(QObject *parent) : QObject(parent)
     connect(socket.data(), SIGNAL(readyRead()), SLOT(slotRead()));
     connect(socket.data(), SIGNAL(connected()), SLOT(slotConnected()));
     connect(socket.data(), SIGNAL(error(QAbstractSocket::SocketError)), SLOT(slotConnectError(QAbstractSocket::SocketError)));
-    connect(socket.data(), SIGNAL(disconnected()), SLOT(slotDisconnected()));
-
 }
 
 Model::~Model()
@@ -26,19 +24,27 @@ void Model::connectToHost(const QString &hostIP)
 
 void Model::SendMessage(const int &label, const QString &message,const QByteArray &file)
 {
-    QByteArray arrBlock;
-    QDataStream send(&arrBlock, QIODevice::WriteOnly);
-    send.setVersion(QDataStream::Qt_DefaultCompiledVersion);
+    try
+    {
+        QByteArray arrBlock;
+        QDataStream send(&arrBlock, QIODevice::WriteOnly);
+        send.setVersion(QDataStream::Qt_DefaultCompiledVersion);
 
-    send<<quint32(0)<<label<<QTime::currentTime()<<message;
+        send<<quint32(0)<<label<<QTime::currentTime()<<message;
 
-    if(!file.isEmpty())
-        arrBlock.append(file);
+        if(!file.isEmpty())
+            arrBlock.append(file);
 
-    send.device()->seek(0);
-    send<<(arrBlock.size() - sizeof(quint32));
+        send.device()->seek(0);
+        send<<(arrBlock.size() - sizeof(quint32));
 
-    socket->write(arrBlock);
+        socket->write(arrBlock);
+    }
+    catch(QException&ex)
+    {
+        //write error in log file
+        emit signalMessageError();
+    }
 }
 
 QMap<QString, clientInfo> *Model::GetClients()
@@ -97,6 +103,10 @@ void Model::Parser(QDataStream &mess)
         clientsList.insert(newClient.first, newClient.second);
         emit signalNewClient(newClient);
         break;
+
+    default:
+        //write label error in log file
+        break;
     }
 }
 
@@ -121,9 +131,6 @@ void Model::slotRead()
         blockSize = 0;
         Parser(in);
     }
-
-     //blockSize = 0;
-
 }
 
 void Model::slotConnectError(QAbstractSocket::SocketError err)
@@ -145,9 +152,5 @@ void Model::slotConnected()
     emit signalConnect("");
 }
 
-void Model::slotDisconnected()
-{
-    emit signalDisconnect();
-}
 
 

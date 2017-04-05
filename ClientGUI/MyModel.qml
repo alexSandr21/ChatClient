@@ -60,6 +60,15 @@ ListModel
 
                 break;
             }
+    }
 
+    function funcSetFriendStatus(login)
+    {
+        for(var i=0; i<mod.count; i++)
+            if(mod.get(i).login === login)
+            {
+                messageList.friendStatus = mod.get(i).name+" "+mod.get(i).status
+                break;
+            }
     }
 }

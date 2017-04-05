@@ -19,7 +19,20 @@ Rectangle
             startWindow.visible = true
         }
         else
+        {
+            mainWindow.title = "YAMessenger"
+            chatList.clear()
+            messageList.clear()
+            messageList.friendStatus = "Choose interlocutor"
+
+            startWindow.visible = false
+            loginWindow.visible = false
+            regestrationWindow.visible = false
+
+            fade.visible = true
+            connectionWindow.visible = true
             connectionError.text = result
+        }
     }
 
     Rectangle

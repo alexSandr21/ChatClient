@@ -12,6 +12,8 @@ Window {
     minimumHeight: 480
     minimumWidth: 800
 
+    title: "YAMessenger"
+
     Connections
     {
         target: presenter
@@ -23,7 +25,9 @@ Window {
         onSignalNewMessage: mod.funcNewMessage(sender)
         onSignalWriteMessage: messageListModel.append({interlocutor:interlocutor, message:message, myanswer:myanswer, time:time})
         onSignalTooBigFile: messageEnter.text = "file must be not more 30 MB"
-        onSignalErrorOpenFile: messageEnter.text = "error open file"
+        onSignalMessageError: messageEnter.text = "error send message"
+        onSignalSetFriendStatus: mod.funcSetFriendStatus(login)
+        onSignalSetTitle: mainWindow.title = "YAMessenger ("+presenter.methGetLogin()+")"
     }
 
 

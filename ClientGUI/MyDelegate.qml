@@ -17,6 +17,8 @@ Item {
        border.color: "black"
        border.width: 0.5
 
+
+
        MouseArea
        {
            hoverEnabled: true
@@ -28,6 +30,7 @@ Item {
            {
                if(login!==presenter.methGetReceiver())
                {
+                   messageList.friendStatus = name+" "+status
                    messageListModel.clear()
                    messageEnter.clear()
                    newMessage = false

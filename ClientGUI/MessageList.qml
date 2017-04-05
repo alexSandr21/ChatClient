@@ -15,6 +15,8 @@ Rectangle
     radius: 5
     visible: true
     property alias model: listVeiw.model
+    property alias friendStatus: interlocutorStatus.text
+    function clear(){messageList.model.clear();messageEnter.clear()}
 
 
     ListView
@@ -26,8 +28,22 @@ Rectangle
         model:MessageListModel{id:messageListModel}
         delegate: MessageListDelegate{/*t:message*/}
         spacing: 5
+    }
 
+    Text
+    {
+        id: interlocutorStatus
+        color: "lightgray"
+        font.pixelSize: 12
+        anchors
+        {
+            left: messageList.left
+            bottom: messageList.bottom
+            leftMargin: 5
+            bottomMargin: 5
+        }
 
+        text: "Choose interlocutor"
     }
 }
 

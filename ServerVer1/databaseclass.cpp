@@ -17,6 +17,7 @@ bool DataBaseClass::ConnectToDataBase()
     }
     else
     {
+        //write error in log file
         qDebug()<<m_db.lastError().text();
         return false;
     }
@@ -29,6 +30,7 @@ bool DataBaseClass::ConnectToDataBase()
         qry.prepare("CREATE TABLE Users (id INTEGER PRIMARY KEY, Username VARCHAR, Password VARCHAR, Name VARCHAR, Surname VARCHAR);");
         if(!qry.exec())
         {
+            //write error in log file
             qDebug()<<qry.lastError().text();
             return false;
         }
@@ -54,6 +56,8 @@ bool DataBaseClass::isUsernameBusy(QString Username)
         else
             return false;
     }
+
+    //write error in log file
     qDebug()<<m_db.lastError().text();
     return true;
 
@@ -82,6 +86,7 @@ bool DataBaseClass::WriteToDataBase(QString Username, QString Password, UserInfo
     }
     else
     {
+        //write error in log file
         QString str = m_db.lastError().text();
         return false;
     }
@@ -106,6 +111,8 @@ bool DataBaseClass::isCorrectLogin(QString Username, QString Password)
         qDebug()<<"Wrong Username or Password";
         return false;
     }
+
+    //write error in log file
     qDebug()<<m_db.lastError().databaseText();
     return false;
 }

@@ -5,6 +5,7 @@
 #include "clientinfo.h"
 #include <QDataStream>
 #include <QTime>
+#include <QException>
 
 
 enum {L_REG, L_LOG, L_MESS, L_OK, L_ERROR, L_NEWCLIENT, L_LOGINEXIST, L_FILE};
@@ -40,14 +41,13 @@ signals:
     void signalConnect(const QString & err);
     void signalWrongLogin();
     void signalLoginExist();
-    void signalDisconnect();
+    void signalMessageError();
 
 public slots:
 
     void slotRead();
     void slotConnectError(QAbstractSocket::SocketError);
     void slotConnected();
-    void slotDisconnected();
 };
 
 

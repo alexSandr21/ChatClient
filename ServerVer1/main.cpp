@@ -5,8 +5,16 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    Dialog w;
-    w.show();
-    return a.exec();
+    try
+    {
+        QApplication a(argc, argv);
+        Dialog w;
+        w.show();
+        return a.exec();
+    }
+    catch(QException &ex)
+    {
+        //write error in log file
+        return -1;
+    }
 }

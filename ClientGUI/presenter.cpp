@@ -9,6 +9,7 @@ Presenter::Presenter(QObject *parent) : QObject(parent)
     connect(&model, SIGNAL(signalNewMessage(QString, QTime, QString)), this, SLOT(slotNewMessage(QString, QTime, QString)));
     connect(&model, SIGNAL(signalNewFile(QString,QTime,QString,QByteArray)), this, SLOT(slotNewFile(QString,QTime,QString,QByteArray)));
     connect(&model, SIGNAL(signalNewClient(QPair<QString,clientInfo>)), this, SLOT(slotNewClient(QPair<QString,clientInfo>)));
+    connect(&model, SIGNAL(signalMessageError()), this, SIGNAL(signalMessageError()));
 }
 
 bool Presenter::methCheckString(QString str)
@@ -36,6 +37,11 @@ bool Presenter::methCheckStringAll(QString str)
 QString Presenter::methGetReceiver()
 {
     return myReceiver;
+}
+
+QString Presenter::methGetLogin()
+{
+    return myLogin;
 }
 
 bool Presenter::methIsOnline(QString receiver)
@@ -101,9 +107,7 @@ void Presenter::slotSetReceiver(QString receiver)
         if(find!=clientsMap->cend())
             receiverName = find->name;
         else
-            receiverName = "Unknown";
-
-
+            return;
 
         QVector<MessageStruct> messages = dBase.GetMessages(receiver);
 
@@ -125,7 +129,7 @@ void Presenter::slotSendFile(QString path)
 
         if(!f.open(QIODevice::ReadOnly))
         {
-            emit signalErrorOpenFile();
+            emit signalMessageError();
             return;
         }
 
@@ -152,9 +156,10 @@ void Presenter::slotSendFile(QString path)
 
         model.SendMessage(L_FILE, messForModel, fileContent);
     }
-    catch(QException)
+    catch(QException&ex)
     {
-        emit signalErrorOpenFile();
+        //write error in log file
+        emit signalMessageError();
     }
 
 }
@@ -172,6 +177,9 @@ void Presenter::slotNewClient(QPair<QString, clientInfo> newClient)
 
     if(login!=myLogin)
         emit signalNewUser(name,status, login);
+
+    if(login == myReceiver)
+        emit signalSetFriendStatus(login);
 }
 
 void Presenter::slotNewMessage(QString sender, QTime time, QString message)
@@ -254,4 +262,5 @@ void Presenter::slotOK()
 
     emit signalLoginResult(true);
     emit signalRegistrationResult(true);
+    emit signalSetTitle(myLogin);
 }

@@ -37,6 +37,7 @@ public:
     Q_INVOKABLE bool methCheckString(QString str);
     Q_INVOKABLE bool methCheckStringAll(QString str);
     Q_INVOKABLE QString methGetReceiver();
+    Q_INVOKABLE QString methGetLogin();
     Q_INVOKABLE bool methIsOnline(QString receiver);
 
 signals:
@@ -44,14 +45,15 @@ signals:
     //signals for VIEW
     void signalSetUsers(QString name, QString status, QString login);
     void signalNewUser(QString name, QString status, QString login);
-    void signalDisconnected();
     void signalConnectResult(QString result);
     void signalLoginResult(bool result);
     void signalRegistrationResult(bool result);
     void signalNewMessage(QString sender);
     void signalWriteMessage(QString interlocutor, bool myanswer, QString message, QString time);
     void signalTooBigFile();
-    void signalErrorOpenFile();
+    void signalMessageError();
+    void signalSetFriendStatus(QString login);
+    void signalSetTitle(QString);
 
 public slots:
 
@@ -62,7 +64,7 @@ public slots:
     void slotLogin(QString login, QString pass);
     void slotRegistration(QString name, QString surname, QString login, QString pass);
     void slotSetReceiver(QString receiver);
-    void slotSendFile(QString path);        //write implementation
+    void slotSendFile(QString path);
 
     //slots for MODEL
     void slotConnectResult(QString result);
