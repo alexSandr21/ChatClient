@@ -10,6 +10,8 @@ const char DELIM = '|';
 
 //privet
 
+//privet
+
 struct clientInfo
 {
     QString name;
