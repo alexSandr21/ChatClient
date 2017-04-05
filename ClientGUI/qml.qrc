@@ -16,5 +16,6 @@
         <file>LoginWindow.qml</file>
         <file>MessageListModel.qml</file>
         <file>MessageListDelegate.qml</file>
+        <file>AttachFileDialog.qml</file>
     </qresource>
 </RCC>

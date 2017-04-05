@@ -4,6 +4,7 @@ import QtQuick.Controls 2.1
 
 Rectangle
 {
+    property alias text: input.text
     function clear(){input.clear()}
     function getText(){return input.getText(0, input.text.length)}
 

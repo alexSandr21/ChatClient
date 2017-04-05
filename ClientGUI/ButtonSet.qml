@@ -49,6 +49,9 @@ Rectangle
                 onReleased:
                 {
                     attachButton.color = "#512A41"
+
+                    if(presenter.methIsOnline(presenter.methGetReceiver()))
+                        fileDialog.visible = true;
                 }
             }
         }

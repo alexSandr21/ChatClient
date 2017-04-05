@@ -6,7 +6,9 @@
 #include <QtNetwork/QTcpSocket>
 #include <QDataStream>
 
-const char DELIM = '.';     //test comm
+const char DELIM = '|';
+
+//privet
 
 struct clientInfo
 {

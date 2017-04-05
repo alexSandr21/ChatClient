@@ -2,10 +2,6 @@
 
 #include "stdafx.h"
 
-
-
-
-
 class ServerClass : public QObject
 {
     Q_OBJECT
@@ -18,11 +14,11 @@ private:
     quint32 m_nNextBlockSize;
 
 
-    void ReadClientREG_LOG(QDataStream& in, QTcpSocket* pClientSocket,const MsgType& typeMsg);
-    void ReadClientMESSAGE(QDataStream& in);
+    void ReadClientREG_LOG(QDataStream& in, QTcpSocket* pClientSocket,const int& typeMsg);
+    void ReadClientMESSAGE(QDataStream& in, const int &typeMsg);
 
 
-    void SendToClient(QTcpSocket* pClientSocket, const MsgType& type, const QByteArray& arrBlockMsg);
+    void SendToClient(QTcpSocket* pClientSocket, const int& type, const QByteArray& arrBlockMsg);
 
 public:
     explicit ServerClass(QObject *parent = 0 );

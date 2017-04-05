@@ -8,11 +8,17 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QTextStream>
 #include <QVector>
 #include "database.h"
 #include "model.h"
 #include <algorithm>
+#include <QFile>
+#include <QDir>
+
+
 const std::vector<char> WRONGCH{'.',',','*',';',' ',':','\'','\"','|','?'};
+const int MAX_FILE_SIZE = 30000000;
 
 class Presenter : public QObject
 {
@@ -44,6 +50,8 @@ signals:
     void signalRegistrationResult(bool result);
     void signalNewMessage(QString sender);
     void signalWriteMessage(QString interlocutor, bool myanswer, QString message, QString time);
+    void signalTooBigFile();
+    void signalErrorOpenFile();
 
 public slots:
 
@@ -54,11 +62,13 @@ public slots:
     void slotLogin(QString login, QString pass);
     void slotRegistration(QString name, QString surname, QString login, QString pass);
     void slotSetReceiver(QString receiver);
+    void slotSendFile(QString path);        //write implementation
 
     //slots for MODEL
     void slotConnectResult(QString result);
     void slotNewClient(QPair<QString, clientInfo> newClient);
     void slotNewMessage(QString sender, QTime time, QString message);
+    void slotNewFile(QString sender, QTime time, QString fileName, QByteArray file);
     void slotWrongLogin();
     void slotLoginExist();
     void slotOK();

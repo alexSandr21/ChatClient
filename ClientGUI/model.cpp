@@ -24,13 +24,16 @@ void Model::connectToHost(const QString &hostIP)
     socket->connectToHost(hostIP, port);
 }
 
-void Model::SendMessage(const int &label, const QString &message)
+void Model::SendMessage(const int &label, const QString &message,const QByteArray &file)
 {
     QByteArray arrBlock;
     QDataStream send(&arrBlock, QIODevice::WriteOnly);
     send.setVersion(QDataStream::Qt_DefaultCompiledVersion);
 
     send<<quint32(0)<<label<<QTime::currentTime()<<message;
+
+    if(!file.isEmpty())
+        arrBlock.append(file);
 
     send.device()->seek(0);
     send<<(arrBlock.size() - sizeof(quint32));
@@ -45,11 +48,13 @@ QMap<QString, clientInfo> *Model::GetClients()
 
 void Model::Parser(QDataStream &mess)
 {
-    int label=0;
+    int label= 0;
+
     QTime time;
     QString message;
     QString sender;
     QPair<QString, clientInfo> newClient;
+    QByteArray file;
 
     mess>>label;
     mess>>time;
@@ -62,11 +67,21 @@ void Model::Parser(QDataStream &mess)
         break;
 
     case L_MESS:
-        //mess>>time;
         mess>>message;
         sender = message.left(message.indexOf(DELIM));
         message.remove(0, sender.size()+1);
         emit signalNewMessage(sender, time, message);
+        break;
+
+    case L_FILE:
+        mess>>message;
+        sender = message.left(message.indexOf(DELIM));
+        message.remove(0, sender.size()+1);
+
+        mess.device()->seek(mess.device()->pos()+4);
+
+        file = mess.device()->readAll();
+        emit signalNewFile(sender, time, message, file);
         break;
 
     case L_ERROR:
@@ -107,7 +122,7 @@ void Model::slotRead()
         Parser(in);
     }
 
-     blockSize = 0;
+     //blockSize = 0;
 
 }
 

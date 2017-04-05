@@ -33,7 +33,7 @@ bool ServerClass::StartServer(int nPort, QTextBrowser* txtInfo)
 }
 
 
-void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, const MsgType &typeMsg)
+void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, const int &typeMsg)
 {
     UserInfo StructUI;
     QString strMsg;
@@ -41,7 +41,7 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
 
     in>>strMsg;
 
-    strVec = strMsg.split('.').toVector();
+    strVec = strMsg.split(DELIM).toVector();
 
     if(!strVec.size())
     {
@@ -87,7 +87,8 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
         qDebug()<<"Client "<<strVec[0]<<" login to the server";
         this->m_ptxtInfo->append("Client "+strVec[0]+" login to the server");
     }
-
+    else
+        return;
 
     this->m_mapClients.insert(strVec[0], StructUI);
 
@@ -123,13 +124,18 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
 
 
 
-void ServerClass::ReadClientMESSAGE(QDataStream &in)
+void ServerClass::ReadClientMESSAGE(QDataStream &in, const int &typeMsg)
 {
     QString strMsg, strSender, strReciever;
     QVector<QString> strVec;
+    QByteArray file;
+
     in>>strMsg;
 
-    strVec = strMsg.split('.').toVector();
+    if(typeMsg == L_FILE)
+        file = in.device()->readAll();
+
+    strVec = strMsg.split(DELIM).toVector();
     strSender = strVec[0];
     strReciever = strVec[1];
 
@@ -140,18 +146,21 @@ void ServerClass::ReadClientMESSAGE(QDataStream &in)
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_DefaultCompiledVersion);
-    strMsg = strVec[0] + '.' + strVec[2];
+    strMsg = strVec[0] + DELIM + strVec[2];
 
     out<<strMsg;
 
+    if(typeMsg == L_FILE)
+        arrBlock.append(file);
 
-    SendToClient(this->m_mapClients.value(strVec[1]).pClientSocket, MESSAGE, arrBlock);
+
+    SendToClient(this->m_mapClients.value(strVec[1]).pClientSocket, typeMsg, arrBlock);
 
 }
 
 
 
-void ServerClass::SendToClient(QTcpSocket *pClientSocket,const MsgType &type, const QByteArray &arrBlockMsg)
+void ServerClass::SendToClient(QTcpSocket *pClientSocket,const int &type, const QByteArray &arrBlockMsg)
 {
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
@@ -226,13 +235,15 @@ void ServerClass::slotReadClient()
 
         in>>typeMsg>>time;
 
-        if(typeMsg == MESSAGE)
-            ReadClientMESSAGE(in);
+        if(typeMsg == MESSAGE||typeMsg == L_FILE)
+            ReadClientMESSAGE(in, typeMsg);
         else
-            ReadClientREG_LOG(in, pClientSocket, static_cast<MsgType>(typeMsg));
+            ReadClientREG_LOG(in, pClientSocket,typeMsg);
+
+         m_nNextBlockSize = 0;
     }
 
-    m_nNextBlockSize = 0;
+   // m_nNextBlockSize = 0;
 }
 
 

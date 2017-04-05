@@ -1,1 +1,6 @@
 ClientGUI/ClientGUI.pro.user
+ClientGUI/debug
+ClientGUI/release
+ServerVer1/debug
+ServerVer1/release
+ServerVer1/ServerVer1.pro.user

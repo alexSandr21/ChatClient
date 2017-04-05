@@ -1,5 +1,5 @@
 #pragma once
-enum MsgType
+enum
 {
     REG,
     LOGIN,
@@ -8,7 +8,7 @@ enum MsgType
     LOG_ERROR,
     UPDATE,
     REG_ERROR,
-    DISSCONNECT
+    L_FILE
 };
 
 

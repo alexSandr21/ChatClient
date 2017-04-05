@@ -7,7 +7,7 @@
 #include <QTime>
 
 
-enum {L_REG, L_LOG, L_MESS, L_OK, L_ERROR, L_NEWCLIENT, L_LOGINEXIST};
+enum {L_REG, L_LOG, L_MESS, L_OK, L_ERROR, L_NEWCLIENT, L_LOGINEXIST, L_FILE};
 
 class Model : public QObject
 {
@@ -27,7 +27,7 @@ public:
     ~Model();
 
     void connectToHost(const QString &hostIP);
-    void SendMessage(const int & label, const QString & message);
+    void SendMessage(const int & label, const QString & message, const QByteArray &file = QByteArray());
     QMap<QString, clientInfo>*GetClients();
 
 signals:
@@ -36,6 +36,7 @@ signals:
     void signalOK();
     void signalNewClient(const QPair<QString, clientInfo> & newClient);
     void signalNewMessage(const QString & sender, const QTime &time, const QString & message);
+    void signalNewFile(const QString &sender, const QTime &time,const QString & fileName, const QByteArray &file);
     void signalConnect(const QString & err);
     void signalWrongLogin();
     void signalLoginExist();

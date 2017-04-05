@@ -7,6 +7,7 @@ Presenter::Presenter(QObject *parent) : QObject(parent)
     connect(&model, SIGNAL(signalOK()), this, SLOT(slotOK()));
     connect(&model, SIGNAL(signalLoginExist()), this, SLOT(slotLoginExist()));
     connect(&model, SIGNAL(signalNewMessage(QString, QTime, QString)), this, SLOT(slotNewMessage(QString, QTime, QString)));
+    connect(&model, SIGNAL(signalNewFile(QString,QTime,QString,QByteArray)), this, SLOT(slotNewFile(QString,QTime,QString,QByteArray)));
     connect(&model, SIGNAL(signalNewClient(QPair<QString,clientInfo>)), this, SLOT(slotNewClient(QPair<QString,clientInfo>)));
 }
 
@@ -115,6 +116,49 @@ void Presenter::slotSetReceiver(QString receiver)
 
 }
 
+void Presenter::slotSendFile(QString path)
+{
+    try
+    {
+        path.remove(0, 8);
+        QFile f(path);
+
+        if(!f.open(QIODevice::ReadOnly))
+        {
+            emit signalErrorOpenFile();
+            return;
+        }
+
+        if(f.size()>MAX_FILE_SIZE)
+        {
+            emit signalTooBigFile();
+            return;
+        }
+
+        QString mess;
+        auto pos = path.lastIndexOf('/');
+        if(pos==-1)
+            mess = path;
+        else
+            mess = path.remove(0, pos+1);
+
+        dBase.Insert(MessageStruct{myReceiver, 1, "file: "+mess, QTime::currentTime().toString()});
+        emit signalWriteMessage(myReceiver, 1, "file: "+mess, QTime::currentTime().toString());
+
+        QByteArray fileContent;
+        fileContent = f.readAll();
+
+        QString messForModel(myLogin+DELIM+myReceiver+DELIM+mess);
+
+        model.SendMessage(L_FILE, messForModel, fileContent);
+    }
+    catch(QException)
+    {
+        emit signalErrorOpenFile();
+    }
+
+}
+
 void Presenter::slotConnectResult(QString result)
 {
     emit signalConnectResult(result);
@@ -140,6 +184,53 @@ void Presenter::slotNewMessage(QString sender, QTime time, QString message)
     else
         emit signalNewMessage(sender);
 
+}
+
+void Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteArray file)
+{
+    QDir dir;
+    QString message = "file: "+fileName;
+
+    dir.mkdir("YAMessenger");
+
+    dir.mkdir("YAMessenger//"+myLogin);
+    dir.mkdir("YAMessenger//"+myLogin+"//from "+sender);
+
+    QString filePath("YAMessenger//"+myLogin+"//from "+sender+"//"+fileName);
+
+
+
+    while(QFile::exists(filePath))
+    {
+        int i=1;
+        QString s;
+        QTextStream in(&s);
+
+        in<<i;
+
+        auto pos = filePath.lastIndexOf('.');
+
+        if(pos!=-1)
+            filePath.insert(pos, s);
+        else
+            return;
+        ++i;
+
+    }
+
+     QFile f(filePath);
+
+    if(!f.open(QIODevice::WriteOnly))
+        message = "Error open file";
+    else
+        f.write(file);
+
+    dBase.Insert(MessageStruct{sender, 0, message , time.toString()});
+
+    if(sender == myReceiver)
+        emit signalWriteMessage(sender, 0, message, time.toString());
+    else
+        emit signalNewMessage(sender);
 }
 
 void Presenter::slotWrongLogin()

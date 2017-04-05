@@ -1,7 +1,7 @@
 #pragma once
 #include <QtNetwork>
 
-
+const char DELIM = '|';
 
 struct UserInfo {
 
@@ -27,7 +27,7 @@ struct UserInfo {
             out<<true;
         else
             out<<false;
-        QString str(u.name + '.' + u.surName);
+        QString str(u.name + DELIM + u.surName);
         out<<str;
         return out;
     }

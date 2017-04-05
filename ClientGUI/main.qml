@@ -22,10 +22,12 @@ Window {
         onSignalRegistrationResult:regestrationWindow.funcRegistrationResult(result)
         onSignalNewMessage: mod.funcNewMessage(sender)
         onSignalWriteMessage: messageListModel.append({interlocutor:interlocutor, message:message, myanswer:myanswer, time:time})
-
+        onSignalTooBigFile: messageEnter.text = "file must be not more 30 MB"
+        onSignalErrorOpenFile: messageEnter.text = "error open file"
     }
 
 
+    AttachFileDialog{id:fileDialog}
 
     MessageEnter{id:messageEnter}
 
