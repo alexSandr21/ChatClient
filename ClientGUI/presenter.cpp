@@ -156,7 +156,7 @@ void Presenter::slotSendFile(QString path)
 
         model.SendMessage(L_FILE, messForModel, fileContent);
     }
-    catch(QException&ex)
+    catch(const std::exception&ex)
     {
         //write error in log file
         emit signalMessageError();
@@ -227,8 +227,6 @@ void Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteA
     }
 
     QScopedPointer<QFile, CustomDeleter> pF(new QFile(filePath));
-
-     //QFile f(filePath);
 
     if(!pF->open(QIODevice::WriteOnly))
         message = "Error open file";

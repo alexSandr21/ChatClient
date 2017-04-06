@@ -1,5 +1,13 @@
 #pragma once
-#include "stdafx.h"
+
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#include <QtSql>
+#include <QString>
+#include "userinfo.h"
+#include "emessagetype.h"
+
 
 
 class DataBaseClass

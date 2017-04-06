@@ -40,7 +40,7 @@ void Model::SendMessage(const int &label, const QString &message,const QByteArra
 
         socket->write(arrBlock);
     }
-    catch(QException&ex)
+    catch(const std::exception&ex)
     {
         //write error in log file
         emit signalMessageError();

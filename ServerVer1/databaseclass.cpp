@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "databaseclass.h"
 
 DataBaseClass::DataBaseClass()
@@ -137,5 +136,9 @@ void DataBaseClass::FillMapUsername(QMap<QString, UserInfo>& map)
             tempUIS.surName = qry.value(2).toString();
             map.insert(qry.value(0).toString(), tempUIS);
         }
+    }
+    else
+    {
+        //write errror in log file
     }
 }

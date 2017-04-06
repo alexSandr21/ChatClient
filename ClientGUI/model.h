@@ -5,7 +5,7 @@
 #include "clientinfo.h"
 #include <QDataStream>
 #include <QTime>
-#include <QException>
+#include <exception>
 
 
 enum {L_REG, L_LOG, L_MESS, L_OK, L_ERROR, L_NEWCLIENT, L_LOGINEXIST, L_FILE};

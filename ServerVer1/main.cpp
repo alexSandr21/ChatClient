@@ -1,6 +1,7 @@
 #include "dialog.h"
 #include <QApplication>
-#include <databaseclass.h>
+#include <QDialog>
+#include "databaseclass.h"
 #include "serverclass.h"
 
 int main(int argc, char *argv[])
@@ -12,7 +13,7 @@ int main(int argc, char *argv[])
         w.show();
         return a.exec();
     }
-    catch(QException &ex)
+    catch(const std::exception &ex)
     {
         //write error in log file
         return -1;

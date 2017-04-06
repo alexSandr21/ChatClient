@@ -21,9 +21,13 @@ Rectangle
         else
         {
             mainWindow.title = "YAMessenger"
-            chatList.clear()
-            messageList.clear()
-            messageList.friendStatus = "Choose interlocutor"
+
+            if(presenter.methGetLogin()!=="")
+            {
+                chatList.clear()
+                messageList.clear()
+                messageList.friendStatus = "Choose interlocutor"
+            }
 
             startWindow.visible = false
             loginWindow.visible = false

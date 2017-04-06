@@ -11,6 +11,7 @@
 #include <QString>
 #include "messagestruct.h"
 #include <QDebug>
+#include <exception>
 
 class MessagesDataBase : public QObject
 {

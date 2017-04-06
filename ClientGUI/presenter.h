@@ -16,6 +16,7 @@
 #include <QFile>
 #include <QDir>
 #include "customdeleter.h"
+#include <exception>
 
 
 const std::vector<char> WRONGCH{'.',',','*',';',' ',':','\'','\"','|','?'};

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "stdafx.h"
+#include <QWidget>
+#include <QDialog>
+#include "serverclass.h"
+
 
 namespace Ui {
 class Dialog;

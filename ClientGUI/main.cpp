@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
         return app.exec();
     }
-    catch(QException &ex)
+    catch(const std::exception &ex)
     {
         //write fatal error in log file
         return -1;

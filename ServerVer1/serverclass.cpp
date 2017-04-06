@@ -163,7 +163,7 @@ void ServerClass::ReadClientMESSAGE(QDataStream &in, const int &typeMsg)
 
         SendToClient(this->m_mapClients.value(strVec[1]).pClientSocket, typeMsg, arrBlock);
     }
-    catch(QException &ex)
+    catch(const std::exception &ex)
     {
         //write error in log file
     }
@@ -190,7 +190,7 @@ void ServerClass::SendToClient(QTcpSocket *pClientSocket,const int &type, const 
 
         pClientSocket->write(arrBlock);
     }
-    catch(QException &ex)
+    catch(const std::exception &ex)
     {
         //write error in lol file
     }
