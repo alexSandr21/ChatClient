@@ -125,15 +125,15 @@ void Presenter::slotSendFile(QString path)
     try
     {
         path.remove(0, 8);
-        QFile f(path);
+        QScopedPointer<QFile, CustomDeleter> pF(new QFile(path));
 
-        if(!f.open(QIODevice::ReadOnly))
+        if(!pF->open(QIODevice::ReadOnly))
         {
             emit signalMessageError();
             return;
         }
 
-        if(f.size()>MAX_FILE_SIZE)
+        if(pF->size()>MAX_FILE_SIZE)
         {
             emit signalTooBigFile();
             return;
@@ -150,7 +150,7 @@ void Presenter::slotSendFile(QString path)
         emit signalWriteMessage(myReceiver, 1, "file: "+mess, QTime::currentTime().toString());
 
         QByteArray fileContent;
-        fileContent = f.readAll();
+        fileContent = pF->readAll();
 
         QString messForModel(myLogin+DELIM+myReceiver+DELIM+mess);
 
@@ -226,12 +226,14 @@ void Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteA
 
     }
 
-     QFile f(filePath);
+    QScopedPointer<QFile, CustomDeleter> pF(new QFile(filePath));
 
-    if(!f.open(QIODevice::WriteOnly))
+     //QFile f(filePath);
+
+    if(!pF->open(QIODevice::WriteOnly))
         message = "Error open file";
     else
-        f.write(file);
+        pF->write(file);
 
     dBase.Insert(MessageStruct{sender, 0, message , time.toString()});
 

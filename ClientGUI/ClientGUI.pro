@@ -40,4 +40,5 @@ HEADERS += \
     database.h \
     messagestruct.h \
     clientinfo.h \
-    model.h
+    model.h \
+    customdeleter.h
