@@ -1,5 +1,4 @@
-#ifndef MESSAGESTRUCT_H
-#define MESSAGESTRUCT_H
+#pragma once
 
 #include "stdafx.h"
 
@@ -11,4 +10,3 @@ struct MessageStruct
   QString time;
 };
 
-#endif // MESSAGESTRUCT_H

@@ -1,5 +1,4 @@
-#ifndef CUSTOMDELETER_H
-#define CUSTOMDELETER_H
+#pragma once
 
 #include "stdafx.h"
 
@@ -14,4 +13,3 @@ struct CustomDeleter
     }
 };
 
-#endif // CUSTOMDELETER_H

@@ -1,5 +1,6 @@
-#ifndef CLIENTINFO_H
-#define CLIENTINFO_H
+#pragma once
+
+#include "stdafx.h"
 
 const char DELIM = '|';
 
@@ -26,4 +27,3 @@ struct clientInfo
 };
 
 
-#endif // CLIENTINFO_H

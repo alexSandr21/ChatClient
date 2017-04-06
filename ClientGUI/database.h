@@ -1,5 +1,4 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#pragma once
 
 #include "messagestruct.h"
 
@@ -24,4 +23,3 @@ public:
 
 };
 
-#endif // DATABASE_H

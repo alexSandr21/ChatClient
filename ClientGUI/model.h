@@ -1,5 +1,4 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include "clientinfo.h"
 
@@ -47,4 +46,3 @@ public slots:
 };
 
 
-#endif // MODEL_H

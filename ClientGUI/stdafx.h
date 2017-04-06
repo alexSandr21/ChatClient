@@ -1,5 +1,4 @@
-#ifndef STDAFX_H
-#define STDAFX_H
+#pragma once
 
 #include <QString>
 #include <QtNetwork/QTcpSocket>
@@ -28,4 +27,3 @@
 #include <QQmlContext>
 #include <algorithm>
 
-#endif // CLIENTINFO_H

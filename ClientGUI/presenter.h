@@ -1,5 +1,4 @@
-#ifndef PRESENTER_H
-#define PRESENTER_H
+#pragma once
 
 #include "customdeleter.h"
 #include "database.h"
@@ -65,4 +64,3 @@ public slots:
     void slotOK();
 };
 
-#endif // PRESENTER_H
