@@ -1,6 +1,5 @@
+#include "stdafx.h"
 #include "dialog.h"
-#include <QApplication>
-#include <QDialog>
 #include "databaseclass.h"
 #include "serverclass.h"
 

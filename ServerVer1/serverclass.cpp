@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "serverclass.h"
+
 
 ServerClass::ServerClass( QObject *parent) : QObject(parent), m_ptxtInfo(nullptr), m_nNextBlockSize(0)
 {

@@ -1,22 +1,9 @@
 #ifndef PRESENTER_H
 #define PRESENTER_H
 
-#include <QObject>
-#include <QString>
-#include <QMap>
-#include <QRegularExpression>
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QTextStream>
-#include <QVector>
+#include "customdeleter.h"
 #include "database.h"
 #include "model.h"
-#include <algorithm>
-#include <QFile>
-#include <QDir>
-#include "customdeleter.h"
-#include <exception>
 
 
 const std::vector<char> WRONGCH{'.',',','*',';',' ',':','\'','\"','|','?'};

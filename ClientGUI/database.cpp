@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "database.h"
 
 MessagesDataBase::MessagesDataBase(QObject *parent) : QObject(parent)

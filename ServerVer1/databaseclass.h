@@ -1,10 +1,5 @@
 #pragma once
 
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlError>
-#include <QtSql/QSqlQuery>
-#include <QtSql>
-#include <QString>
 #include "userinfo.h"
 #include "emessagetype.h"
 

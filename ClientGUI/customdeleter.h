@@ -1,7 +1,7 @@
 #ifndef CUSTOMDELETER_H
 #define CUSTOMDELETER_H
 
-#include <QFile>
+#include "stdafx.h"
 
 struct CustomDeleter
 {

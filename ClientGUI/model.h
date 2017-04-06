@@ -1,11 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <QObject>
 #include "clientinfo.h"
-#include <QDataStream>
-#include <QTime>
-#include <exception>
 
 
 enum {L_REG, L_LOG, L_MESS, L_OK, L_ERROR, L_NEWCLIENT, L_LOGINEXIST, L_FILE};

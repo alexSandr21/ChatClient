@@ -1,4 +1,3 @@
-//import QtQuick 2.6
 import QtQuick 2.7
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.1
@@ -24,12 +23,11 @@ Window {
         onSignalRegistrationResult:regestrationWindow.funcRegistrationResult(result)
         onSignalNewMessage: mod.funcNewMessage(sender)
         onSignalWriteMessage: messageListModel.append({interlocutor:interlocutor, message:message, myanswer:myanswer, time:time})
-        onSignalTooBigFile: messageEnter.text = "file must be not more 30 MB"
-        onSignalMessageError: messageEnter.text = "error send message"
+        onSignalTooBigFile: errorWindow.funcError("file must be not more 30 MB")
+        onSignalMessageError: errorWindow.funcError("error send message")
         onSignalSetFriendStatus: mod.funcSetFriendStatus(login)
         onSignalSetTitle: mainWindow.title = "YAMessenger ("+presenter.methGetLogin()+")"
     }
-
 
     AttachFileDialog{id:fileDialog}
 
@@ -50,6 +48,8 @@ Window {
     LoginWindow{id:loginWindow; visible:false}
 
     RegistrationWindow{id: regestrationWindow; visible:false}
+
+    ErrorWindow{id:errorWindow; visible: false}
 
 }
 

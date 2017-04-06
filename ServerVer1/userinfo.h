@@ -1,5 +1,6 @@
 #pragma once
-#include <QtNetwork>
+
+#include "stdafx.h"
 
 const char DELIM = '|';
 

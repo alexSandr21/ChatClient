@@ -50,8 +50,14 @@ Rectangle
             {
                 attachButton.color = "#512A41"
 
-                if(presenter.methIsOnline(presenter.methGetReceiver()))
+                if(presenter.methGetReceiver() === "")
+                    errorWindow.funcError("Choose interlocutor")
+
+                else if(presenter.methIsOnline(presenter.methGetReceiver()))
                     fileDialog.visible = true;
+
+                else
+                    errorWindow.funcError("User not online")
             }
         }
 
@@ -93,10 +99,22 @@ Rectangle
             onReleased:
             {
                 sendButton.color = "#512A41"
-                if(messageEnter.getText()!==""&&presenter.methIsOnline(presenter.methGetReceiver()))
+
+                if(presenter.methGetReceiver() === "")
+                    errorWindow.funcError("Choose interlocutor")
+
+                else if(messageEnter.getText()!==""&&presenter.methIsOnline(presenter.methGetReceiver()))
                 {
                     presenter.slotSendMessage(messageEnter.getText())
                     messageEnter.clear();
+                }
+
+                else
+                {
+                    if(!presenter.methIsOnline(presenter.methGetReceiver()))
+                        errorWindow.funcError("User not online")
+                    else if(messageEnter.getText()==="")
+                        errorWindow.funcError("Enter message")
                 }
             }
         }

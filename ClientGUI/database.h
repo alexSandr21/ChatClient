@@ -1,17 +1,8 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <QObject>
-#include <QCoreApplication>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlError>
-#include <QtSql/QSqlQuery>
-#include <QtSql/QSqlRecord>
-#include <QtSql>
-#include <QString>
 #include "messagestruct.h"
-#include <QDebug>
-#include <exception>
+
 
 class MessagesDataBase : public QObject
 {

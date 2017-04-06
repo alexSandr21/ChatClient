@@ -17,5 +17,6 @@
         <file>MessageListModel.qml</file>
         <file>MessageListDelegate.qml</file>
         <file>AttachFileDialog.qml</file>
+        <file>ErrorWindow.qml</file>
     </qresource>
 </RCC>

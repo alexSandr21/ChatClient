@@ -1,9 +1,6 @@
 #pragma once
 
-#include <QTcpServer>
 #include "databaseclass.h"
-#include <QMap>
-#include <QTextBrowser>
 
 class ServerClass : public QObject
 {

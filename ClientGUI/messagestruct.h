@@ -1,7 +1,7 @@
 #ifndef MESSAGESTRUCT_H
 #define MESSAGESTRUCT_H
 
-#include <QString>
+#include "stdafx.h"
 
 struct MessageStruct
 {

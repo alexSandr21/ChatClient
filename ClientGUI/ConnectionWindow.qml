@@ -27,6 +27,7 @@ Rectangle
                 chatList.clear()
                 messageList.clear()
                 messageList.friendStatus = "Choose interlocutor"
+                errorWindow.visible = false
             }
 
             startWindow.visible = false
