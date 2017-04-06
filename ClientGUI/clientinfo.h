@@ -1,12 +1,7 @@
 #pragma once
 
-#include "stdafx.h"
-
 const char DELIM = '|';
 
-//privet
-
-//privet
 
 struct clientInfo
 {

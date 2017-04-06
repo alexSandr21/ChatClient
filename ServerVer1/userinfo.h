@@ -1,7 +1,5 @@
 #pragma once
 
-#include "stdafx.h"
-
 const char DELIM = '|';
 
 struct UserInfo {
