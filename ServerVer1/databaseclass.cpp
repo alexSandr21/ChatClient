@@ -41,7 +41,7 @@ bool DataBaseClass::ConnectToDataBase()
 }
 
 
-bool DataBaseClass::isUsernameBusy(QString Username)
+bool DataBaseClass::IsUsernameBusy(QString Username)
 {
     QSqlQuery qry(m_db);
 
@@ -67,7 +67,7 @@ bool DataBaseClass::isUsernameBusy(QString Username)
 
 bool DataBaseClass::WriteToDataBase(QString Username, QString Password, UserInfo UInfo)
 {
-    if(isUsernameBusy(Username))
+    if(IsUsernameBusy(Username))
     {
         return false;
     }
@@ -95,7 +95,7 @@ bool DataBaseClass::WriteToDataBase(QString Username, QString Password, UserInfo
 }
 
 
-bool DataBaseClass::isCorrectLogin(QString Username, QString Password)
+bool DataBaseClass::IsCorrectLogin(QString Username, QString Password)
 {
     QSqlQuery qry(m_db);
 

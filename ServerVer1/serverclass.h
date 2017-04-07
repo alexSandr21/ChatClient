@@ -1,6 +1,8 @@
 #pragma once
 
 #include "databaseclass.h"
+#include "dialog.h"
+#include "ui_dialog.h"
 
 class ServerClass : public QObject
 {
@@ -10,7 +12,7 @@ private:
     QTcpServer* m_pTcpServer;
     DataBaseClass m_dbManager;
     QMap<QString, UserInfo> m_mapClients;
-    QTextBrowser* m_ptxtInfo;
+    Dialog m_dialog;
     quint32 m_nNextBlockSize;
 
 
@@ -24,9 +26,8 @@ public:
     explicit ServerClass(QObject *parent = 0 );
 
 
-    bool StartServer(int nPort, QTextBrowser* txtInfo);
+    bool StartServer(int nPort);
     QString GetIP();
-    void setTxtBrowser(QTextBrowser* txtInfo);
 
 public slots:
     void slotNewConnection();

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "serverclass.h"
 
 
 namespace Ui {
@@ -13,10 +12,12 @@ class Dialog : public QDialog
 
 public:
     explicit Dialog(QWidget *parent = 0);
+    void SetIpInfo(QString strIp);
+    void WriteToTextBrowser(QString strMsg);
     ~Dialog();
 
 private:
     Ui::Dialog *ui;
-    ServerClass m_server;
+//    ServerClass m_server;
 };
 

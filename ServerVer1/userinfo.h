@@ -4,16 +4,10 @@ const char DELIM = '|';
 
 struct UserInfo {
 
-    bool isNotFirstContact;
     QString name;
     QString surName;
     QTcpSocket* pClientSocket;
 
-
-    UserInfo():name(""), surName(""), pClientSocket(nullptr)
-    {
-        isNotFirstContact = false;
-    }
 
     friend QDataStream& operator>>(QDataStream& in, UserInfo& u)
     {

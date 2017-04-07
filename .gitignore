@@ -4,3 +4,5 @@ ClientGUI/release
 ServerVer1/debug
 ServerVer1/release
 ServerVer1/ServerVer1.pro.user
+ServerVer1/_build/
+ClientGUI/_build/

@@ -1,6 +1,4 @@
 #include "stdafx.h"
-#include "dialog.h"
-#include "databaseclass.h"
 #include "serverclass.h"
 
 int main(int argc, char *argv[])
@@ -8,8 +6,8 @@ int main(int argc, char *argv[])
     try
     {
         QApplication a(argc, argv);
-        Dialog w;
-        w.show();
+        ServerClass server;
+        server.StartServer(3004);
         return a.exec();
     }
     catch(const std::exception &ex)

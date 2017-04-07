@@ -5,6 +5,7 @@
 
 
 
+
 class DataBaseClass
 {
 private:
@@ -14,9 +15,9 @@ public:
     DataBaseClass();
 
     bool ConnectToDataBase();
-    bool isUsernameBusy(QString Username);
+    bool IsUsernameBusy(QString Username);
     bool WriteToDataBase(QString Username, QString Password, UserInfo UInfo);
-    bool isCorrectLogin(QString Username, QString Password);
+    bool IsCorrectLogin(QString Username, QString Password);
 
     QString GetLastError() const ;
 

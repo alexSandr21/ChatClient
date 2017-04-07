@@ -2,34 +2,35 @@
 #include "serverclass.h"
 
 
-ServerClass::ServerClass( QObject *parent) : QObject(parent), m_ptxtInfo(nullptr), m_nNextBlockSize(0)
+ServerClass::ServerClass( QObject *parent) : QObject(parent), m_nNextBlockSize(0)
 {
 
 }
 
 
-bool ServerClass::StartServer(int nPort, QTextBrowser* txtInfo)
+bool ServerClass::StartServer(int nPort)
 {
     m_pTcpServer = new QTcpServer();
-    this->setTxtBrowser(txtInfo);
+    m_dialog.show();
+    m_dialog.SetIpInfo(GetIP());
 
     if(!m_pTcpServer->listen(QHostAddress::Any, nPort))
     {
         qDebug()<<m_pTcpServer->errorString();
-        this->m_ptxtInfo->append(m_pTcpServer->errorString());
+        m_dialog.WriteToTextBrowser(m_pTcpServer->errorString());
         m_pTcpServer->close();
         return false;
     }
-    else if(!this->m_dbManager.ConnectToDataBase())
+    else if(!m_dbManager.ConnectToDataBase())
     {
-        qDebug()<<this->m_dbManager.GetLastError();
-        this->m_ptxtInfo->append(this->m_dbManager.GetLastError());
+        qDebug()<<m_dbManager.GetLastError();
+        m_dialog.WriteToTextBrowser(m_dbManager.GetLastError());
         return false;
     }
     qDebug()<<"Server started";
-    this->m_dbManager.FillMapUsername(this->m_mapClients);
+    m_dbManager.FillMapUsername(m_mapClients);
 
-    connect(this->m_pTcpServer, SIGNAL(newConnection()), this, SLOT(slotNewConnection()));
+    connect(m_pTcpServer, &QTcpServer::newConnection, this, &ServerClass::slotNewConnection);
 
     return true;
 }
@@ -61,34 +62,34 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
         StructUI.pClientSocket = pClientSocket;
 
 
-        if(this->m_dbManager.isUsernameBusy(strVec[0]))
+        if(m_dbManager.IsUsernameBusy(strVec[0]))
         {
-            this->SendToClient(pClientSocket, REG_ERROR, NULL);
+            SendToClient(pClientSocket, REG_ERROR, NULL);
             return;
         }
 
 
-        this->m_dbManager.WriteToDataBase(strVec[0], strVec[1], StructUI);
+        m_dbManager.WriteToDataBase(strVec[0], strVec[1], StructUI);
 
 
         qDebug()<<"Client "<<strVec[0]<<" registrate at server";
-        this->m_ptxtInfo->append("Client " + strVec[0] +" registrate at server");
+        m_dialog.WriteToTextBrowser("Client " + strVec[0] +" registrate at server");
     }
     else if(typeMsg == LOGIN)
     {
 
-        if(!this->m_dbManager.isCorrectLogin(strVec[0], strVec[1]))
+        if(!m_dbManager.IsCorrectLogin(strVec[0], strVec[1]))
         {
-            this->SendToClient(pClientSocket, LOG_ERROR, NULL);
+            SendToClient(pClientSocket, LOG_ERROR, NULL);
             return;
         }
 
 
-        StructUI = this->m_mapClients.value(strVec[0]);
+        StructUI = m_mapClients.value(strVec[0]);
         StructUI.pClientSocket = pClientSocket;
 
         qDebug()<<"Client "<<strVec[0]<<" login to the server";
-        this->m_ptxtInfo->append("Client "+strVec[0]+" login to the server");
+        m_dialog.WriteToTextBrowser("Client "+strVec[0]+" login to the server");
     }
     else
     {
@@ -97,7 +98,7 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
     }
 
 
-    this->m_mapClients.insert(strVec[0], StructUI);
+    m_mapClients.insert(strVec[0], StructUI);
 
 
     QByteArray arrBlock;
@@ -107,24 +108,24 @@ void ServerClass::ReadClientREG_LOG(QDataStream &in, QTcpSocket* pClientSocket, 
     out<<qMakePair(strVec[0], StructUI);
 
 
-    foreach(auto currUsername,this->m_mapClients.keys())
+    foreach(auto currUsername,m_mapClients.keys())
     {
         if(currUsername == strVec[0])
         {
 
             arrBlock.clear();
             out.device()->reset();
-            out<<this->m_mapClients;
-            this->SendToClient(pClientSocket, OK, arrBlock);
+            out<<m_mapClients;
+            SendToClient(pClientSocket, OK, arrBlock);
 
 
             arrBlock.clear();
             out.device()->reset();
             out<<qMakePair(strVec[0], StructUI);
         }
-        else if(this->m_mapClients.value(currUsername).pClientSocket)
+        else if(m_mapClients.value(currUsername).pClientSocket)
         {
-            this->SendToClient(this->m_mapClients.value(currUsername).pClientSocket, UPDATE, arrBlock);
+            SendToClient(m_mapClients.value(currUsername).pClientSocket, UPDATE, arrBlock);
         }
     }
 }
@@ -150,7 +151,7 @@ void ServerClass::ReadClientMESSAGE(QDataStream &in, const int &typeMsg)
 
 
         qDebug()<<"Client "<<strSender<<" send message to "<<strReciever;
-        this->m_ptxtInfo->append("Client "+strSender+" send message to "+strReciever);
+        m_dialog.WriteToTextBrowser("Client "+strSender+" send message to "+strReciever);
 
         QByteArray arrBlock;
         QDataStream out(&arrBlock, QIODevice::WriteOnly);
@@ -163,7 +164,7 @@ void ServerClass::ReadClientMESSAGE(QDataStream &in, const int &typeMsg)
             arrBlock.append(file);
 
 
-        SendToClient(this->m_mapClients.value(strVec[1]).pClientSocket, typeMsg, arrBlock);
+        SendToClient(m_mapClients.value(strVec[1]).pClientSocket, typeMsg, arrBlock);
     }
     catch(const std::exception &ex)
     {
@@ -194,7 +195,7 @@ void ServerClass::SendToClient(QTcpSocket *pClientSocket,const int &type, const 
     }
     catch(const std::exception &ex)
     {
-        //write error in lol file
+        //write error in log file
     }
 }
 
@@ -207,28 +208,22 @@ QString ServerClass::GetIP()
     {
         if(address.at(i)!=QHostAddress::LocalHost&&address.at(i).toIPv4Address())
         {
-            return address.at(i).toString();
+            return address.at(i).toString() + " : 3004";
         }
     }
-    return QHostAddress(QHostAddress::LocalHost).toString();
-}
-
-
-void ServerClass::setTxtBrowser(QTextBrowser *txtInfo)
-{
-    m_ptxtInfo = txtInfo;
+    return QHostAddress(QHostAddress::LocalHost).toString() + " : 3004";
 }
 
 
 void ServerClass::slotNewConnection()
 {
-    QTcpSocket* pClientSocket = this->m_pTcpServer->nextPendingConnection();
+    QTcpSocket* pClientSocket = m_pTcpServer->nextPendingConnection();
 
     if(pClientSocket)
     {
-        connect(pClientSocket, SIGNAL(disconnected()), SLOT(slotDissconnectClient()));
-        connect(pClientSocket, SIGNAL(disconnected()), pClientSocket, SLOT(deleteLater()));
-        connect(pClientSocket, SIGNAL(readyRead()), SLOT(slotReadClient()));
+        connect(pClientSocket, &QTcpSocket::disconnected,this, &ServerClass::slotDissconnectClient);
+        connect(pClientSocket, &QTcpSocket::disconnected, pClientSocket, &QTcpSocket::deleteLater);
+        connect(pClientSocket, &QTcpSocket::readyRead,this, &ServerClass::slotReadClient);
         qDebug()<<"Client connect to Server";
     }
     else
@@ -252,7 +247,7 @@ void ServerClass::slotReadClient()
 
     for(;;)
     {
-        if(!this->m_nNextBlockSize)
+        if(!m_nNextBlockSize)
         {
             if(pClientSocket->bytesAvailable()<sizeof(quint32))
                 break;
@@ -295,7 +290,7 @@ void ServerClass::slotDissconnectClient()
 
     it.value().pClientSocket->close();
     it.value().pClientSocket = nullptr;
-    m_ptxtInfo->append("Client "+it.key()+" disconnect from the server");
+    m_dialog.WriteToTextBrowser("Client "+it.key()+" disconnect from the server");
 
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
@@ -309,4 +304,3 @@ void ServerClass::slotDissconnectClient()
             SendToClient(it.value().pClientSocket, UPDATE, arrBlock);
     }
 }
-
