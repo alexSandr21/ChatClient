@@ -212,7 +212,7 @@ void Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteA
     QDir dir;
     QString message = "file: "+fileName;
 
-    if(!dir.mkdir("Received files"))
+    dir.mkdir("Received files");
         
 
     dir.mkdir("Received files//"+myLogin);
