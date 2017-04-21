@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>MyModel.qml</file>
+        <file>MyDelegate.qml</file>
+        <file>Header.qml</file>
+        <file>Footer.qml</file>
+        <file>Fade.qml</file>
+        <file>ButtonSet.qml</file>
+        <file>ChatList.qml</file>
+        <file>MessageList.qml</file>
+        <file>MessageEnter.qml</file>
+        <file>ConnectionWindow.qml</file>
+        <file>StartWindow.qml</file>
+        <file>RegistrationWindow.qml</file>
+        <file>LoginWindow.qml</file>
+        <file>MessageListModel.qml</file>
+        <file>MessageListDelegate.qml</file>
+        <file>AttachFileDialog.qml</file>
+        <file>ErrorWindow.qml</file>
+    </qresource>
+</RCC>
