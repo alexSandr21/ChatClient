@@ -6,3 +6,8 @@ ServerVer1/release
 ServerVer1/ServerVer1.pro.user
 ServerVer1/_build/
 ClientGUI/_build/
+YAMessenger/YAMessenger.pro.user
+YAMessenger/YAServer/lib/
+YAMessenger/YAServer/_build/
+YAMessenger/YAServer/YAServer.pro.user
+YAMessenger/YAServer/obj/
