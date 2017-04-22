@@ -234,6 +234,7 @@ Rectangle
             maximumLength: 17
             onTextChanged: userPassword.border.color = "black"
             Keys.onTabPressed: login.focus = true
+            echoMode: TextInput.Password
         }
 
         border.width: 0.5

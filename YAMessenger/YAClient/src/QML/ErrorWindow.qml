@@ -13,8 +13,7 @@ Rectangle
 
     Keys.onEnterPressed:
     {
-        fade.visible = false
-        errorWindow.visible = false
+        okButton.funcClicked()
     }
 
     function funcError(mess)
@@ -86,12 +85,15 @@ Rectangle
             onReleased:
             {
                 okButton.color = "#512A41"
-
-                fade.visible = false
-                errorWindow.visible = false
+                 okButton.funcClicked()
             }
         }
-
+        function funcClicked()
+        {
+            fade.visible = false
+            errorWindow.visible = false
+            messageEnter.inputFocus = true
+        }
 
     }
 

@@ -351,6 +351,7 @@ Rectangle
         fontSizeMode: Text.VerticalFit
         font.pixelSize: 14
         font.family: "Tahoma"
+
     }
 
     Rectangle {
@@ -378,6 +379,7 @@ Rectangle
                 passwordErrors.text = ""
             }
             Keys.onTabPressed: name.focus = true
+            echoMode: TextInput.Password
         }
         border.width: 0.5
         anchors.horizontalCenter: parent.horizontalCenter

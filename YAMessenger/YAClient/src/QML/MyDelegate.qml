@@ -35,6 +35,7 @@ Item {
                    messageEnter.clear()
                    newMessage = false
                    presenter.slotSetReceiver(login)
+                   messageEnter.inputFocus = true
                }
            }
        }

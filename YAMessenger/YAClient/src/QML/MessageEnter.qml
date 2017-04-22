@@ -9,6 +9,7 @@ import QtQuick.Controls 1.4
 Rectangle
 {
     property alias text: input.text
+    property alias inputFocus: input.focus
     function clear(){input.text = ""}
     function getText(){return input.getText(0, input.text.length)}
 
