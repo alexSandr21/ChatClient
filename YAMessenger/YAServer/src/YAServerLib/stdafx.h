@@ -6,5 +6,7 @@
 #include <QObject>
 #include <QSsl>
 #include <QSslKey>
-
+#include <QFile>
+#include <QSslError>
+#include <QCryptographicHash>
 

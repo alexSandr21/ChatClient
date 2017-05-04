@@ -8,6 +8,12 @@ namespace DatabaseManager {
 
 DatabaseManager::DatabaseManager()
 {
+
+}
+
+void DatabaseManager::SetLogFile(std::shared_ptr<QFile> t_pLogFile)
+{
+    m_pLogFile = t_pLogFile;
 }
 
 bool DatabaseManager::ConnectToDataBase()
@@ -36,6 +42,24 @@ bool DatabaseManager::ConnectToDataBase()
         {
             //write error in log file
             qDebug()<<qry.lastError().text();
+            if(m_pLogFile->isOpen())
+            {
+                m_pLogFile->write(QByteArray::fromStdString(qry.lastError().text().toStdString()));
+            }
+            return false;
+        }
+    }
+    if(!m_db.tables().contains(QLatin1String("UsersCrypto")))
+    {
+        qry.prepare("CREATE TABLE UsersCrypto (id INTEGER PRIMARY KEY, UserHash VARCHAR, Name VARCHAR, Surname VARCHAR);");
+        if(!qry.exec())
+        {
+            //write error in log file
+            qDebug()<<qry.lastError().text();
+            if(m_pLogFile->isOpen())
+            {
+                m_pLogFile->write(QByteArray::fromStdString(qry.lastError().text().toStdString()));
+            }
             return false;
         }
     }
@@ -43,7 +67,7 @@ bool DatabaseManager::ConnectToDataBase()
     return true;
 }
 
-bool DatabaseManager::IsUsernameBusy(QString Username)
+bool DatabaseManager::IsUsernameBusy(const QString &Username)
 {
     QSqlQuery qry(m_db);
 
@@ -62,6 +86,10 @@ bool DatabaseManager::IsUsernameBusy(QString Username)
 
     //write error in log file
     qDebug()<<m_db.lastError().text();
+    if(m_pLogFile->isOpen())
+    {
+        m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
+    }
     return true;
 
 }
@@ -89,7 +117,35 @@ bool DatabaseManager::WriteToDataBase(QString Username, QString Password, Client
     else
     {
         //write error in log file
-        QString str = m_db.lastError().text();
+        if(m_pLogFile->isOpen())
+        {
+            m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
+        }
+        return false;
+    }
+}
+
+bool DatabaseManager::WriteToDataBase(const QByteArray &t_UserHash, const ClientInfo::ClientInfo &t_UInfo)
+{
+    QSqlQuery qry(m_db);
+
+    qry.prepare("INSERT INTO UsersCrypto (UserHash, Name, Surname) Values (:userHash, :name, :surname)");
+    qry.bindValue(":userHash", t_UserHash.toHex());
+    qry.bindValue(":name", t_UInfo.name);
+    qry.bindValue(":surname", t_UInfo.surName);
+
+    if(qry.exec())
+    {
+        qDebug()<<"Refistration succesed";
+        return true;
+    }
+    else
+    {
+        //write error in log file
+        if(m_pLogFile->isOpen())
+        {
+            m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
+        }
         return false;
     }
 }
@@ -114,6 +170,37 @@ bool DatabaseManager::IsCorrectLogin(QString Username, QString Password)
 
     //write error in log file
     qDebug()<<m_db.lastError().databaseText();
+    if(m_pLogFile->isOpen())
+    {
+        m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
+    }
+    return false;
+}
+
+bool DatabaseManager::IsCorrectLogin(const QByteArray &t_UserHash)
+{
+    QSqlQuery qry(m_db);
+
+
+    qry.prepare("SELECT UserHash From UsersCrypto WHERE UserHash= :userHash");
+    qry.bindValue(":userHash", t_UserHash.toHex());
+    if(qry.exec())
+    {
+        if(qry.next())
+        {
+            qDebug()<<"Login succseed";
+            return true;
+        }
+        qDebug()<<"Wrong Username or Password";
+        return false;
+    }
+
+    //write error in log file
+    qDebug()<<m_db.lastError().databaseText();
+    if(m_pLogFile->isOpen())
+    {
+        m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().databaseText().toStdString()));
+    }
     return false;
 }
 
@@ -126,7 +213,7 @@ void DatabaseManager::FillMapUsername(QMap<QString, ClientInfo::ClientInfo> &map
 {
     QSqlQuery qry(this->m_db);
     ClientInfo::ClientInfo tempUIS;
-    qry.prepare("SELECT Username, Name, Surname FROM Users");
+    qry.prepare("SELECT Username, Name, Surname FROM UsersCrypto");
     if(qry.exec())
     {
         while(qry.next())
@@ -140,6 +227,10 @@ void DatabaseManager::FillMapUsername(QMap<QString, ClientInfo::ClientInfo> &map
     else
     {
         //write errror in log file
+        if(m_pLogFile->isOpen())
+        {
+            m_pLogFile->write(QByteArray::fromStdString(qry.lastError().text().toStdString()));
+        }
     }
 }
 

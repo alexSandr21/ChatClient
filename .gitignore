@@ -11,3 +11,12 @@ YAMessenger/YAServer/lib/
 YAMessenger/YAServer/_build/
 YAMessenger/YAServer/YAServer.pro.user
 YAMessenger/YAServer/obj/
+YAMessenger/_build/
+YAMessenger/YAClient/obj/
+YAMessenger/YAServer/bin/debug/ServerDB.db
+YAMessenger/YAServer/bin/debug/server.log
+YAMessenger/YAClient/lib/
+YAMessenger/YAClient/bin/
+YAMessenger/YAServer/bin/debug/YAServerApp.exe
+YAMessenger/YAServer/bin/release/YAServerApp.exe
+YAMessenger/YAServer/bin/

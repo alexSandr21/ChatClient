@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "yaserver.h"
-#include <QFile>
-#include <QSslError>
+
 
 namespace YAServer{
 
@@ -94,8 +93,7 @@ QByteArray privKey("-----BEGIN RSA PRIVATE KEY-----\r\n"
 YAServer::YAServer(std::shared_ptr<QFile> t_pLog, QObject *parent) : QObject(parent), m_nNextBlockSize(0)
 {
     m_pLogFile=t_pLog;
-        QSslError err(QSslError::SslError::CertificateUntrusted);
-        qDebug()<<err.errorString();
+    qDebug()<<QCryptographicHash::hash(QByteArray::fromStdString("alex|123"), QCryptographicHash::Sha3_384).toHex();
 }
 
 bool YAServer::StartServer(int nPort)
@@ -103,6 +101,7 @@ bool YAServer::StartServer(int nPort)
     m_pTcpServer.reset(new QTcpServer(this));
     m_dialog.show();
     m_dialog.SetIpInfo(GetIP());
+    m_dbManager.SetLogFile(m_pLogFile);
 
     if(!m_pTcpServer->listen(QHostAddress::Any, nPort))
     {
@@ -315,6 +314,9 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
         return;
     }
 
+    std::string strUserData;
+    strUserData = strVec[0].toStdString() + strVec[1].toStdString();
+
     if(typeMsg == REG)
     {
 
@@ -325,15 +327,24 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
         StructUI.pClientSocket = pClientSocket;
 
 
-        if(m_dbManager.IsUsernameBusy(strVec[0]))
+        if(m_mapClients.find(strVec[0]) != m_mapClients.end())
         {
             SendToClient(pClientSocket, REG_ERROR);
             return;
         }
 
 
-        m_dbManager.WriteToDataBase(strVec[0], strVec[1], StructUI);
+        //m_dbManager.WriteToDataBase(strVec[0], strVec[1], StructUI);
 
+
+        if(!m_dbManager.WriteToDataBase(QCryptographicHash::hash(QByteArray::fromStdString(strUserData), QCryptographicHash::Sha3_384), StructUI))
+        {
+            if(m_pLogFile->isOpen())
+            {
+                m_pLogFile->write("Error: DB error\r\n");
+                SendToClient(pClientSocket, REG_ERROR);
+            }
+        }
 
         qDebug()<<"Client "<<strVec[0]<<" registrate at server";
         m_dialog.WriteToTextBrowser("Client " + strVec[0] +" registrate at server");
@@ -341,7 +352,8 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
     else if(typeMsg == LOGIN)
     {
 
-        if(!m_dbManager.IsCorrectLogin(strVec[0], strVec[1]))
+
+        if(!m_dbManager.IsCorrectLogin(QCryptographicHash::hash(QByteArray::fromStdString(strUserData), QCryptographicHash::Sha3_384)))
         {
             SendToClient(pClientSocket, LOG_ERROR);
             return;
@@ -349,12 +361,6 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
 
 
         StructUI = m_mapClients.value(strVec[0]);
-
-        if(StructUI.pClientSocket)
-        {
-            SendToClient(pClientSocket, LOG_ERROR);
-            return;
-        }
 
         StructUI.pClientSocket = pClientSocket;
 
