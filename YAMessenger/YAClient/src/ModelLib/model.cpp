@@ -20,16 +20,34 @@ Model::~Model()
 
 void Model::connectToHost(const QString &hostIP)
 {
-    socket.reset(new QTcpSocket());
+    socket.reset(new QSslSocket());
 
     connect(socket.get(), SIGNAL(readyRead()), SLOT(slotRead()));
-    connect(socket.get(), SIGNAL(connected()), SLOT(slotConnected()));
-    connect(socket.get(), SIGNAL(error(QAbstractSocket::SocketError)), SLOT(slotConnectError(QAbstractSocket::SocketError)));
+    connect(socket.get(), SIGNAL(encrypted()), SLOT(slotConnected()));
+    connect(socket.get(), SIGNAL(sslErrors(const QList<QSslError> &)),SLOT(slotConnectError(const QList<QSslError> &)));
+    connect(socket.get(), SIGNAL(disconnected()), SLOT(slotDisconnected()));
 
-    socket->connectToHost(hostIP, port);
+    QSslCertificate cert(certByte);
+    if(cert.isNull())
+    {
+        emit signalConnect("2Connection error");
+        return;
+    }
+    socket->addCaCertificate(cert);
+
+    socket->setProtocol(QSsl::TlsV1SslV3);
+    socket->setPeerVerifyDepth(2);
+
+
+    socket->connectToHostEncrypted(hostIP, port);
+
+    if(!socket->waitForEncrypted(1000))
+        emit signalConnect("Connection error");
+
+
 }
 
-void Model::SendMessage(const int &label, QString message, QByteArray file)
+void Model::SendMessage(const int &label, const QString & message, const QByteArray & file)
 {
     try
     {
@@ -47,7 +65,7 @@ void Model::SendMessage(const int &label, QString message, QByteArray file)
         uint size(arrBlock.size() - sizeof(uint));
         send<<(size);
 
-        socket->write(arrBlock);
+        qDebug()<<socket->write(arrBlock);
         qDebug()<<socket->waitForBytesWritten(1);
     }
     catch(const std::exception&ex)
@@ -145,23 +163,32 @@ void Model::slotRead()
     }
 }
 
-void Model::slotConnectError(QAbstractSocket::SocketError err)
+void Model::slotConnectError(const QList<QSslError> &err)
 {
 
-    QString strError = "Error: "+(err == QAbstractSocket::HostNotFoundError?
-                                      "The host was not found.":
-                                      err == QAbstractSocket::RemoteHostClosedError?
-                                          "The remote host is close":
-                                          err == QAbstractSocket::ConnectionRefusedError?
-                                              "The connection was refused.":
-                                              QString(socket->errorString()));
+    for(int i=0; i<err.size();i++)
+    {
+        if(err.at(i).error()==QSslError::HostNameMismatch)
+        {
+            qDebug()<<"true";
 
-    emit signalConnect(strError);
+            QList<QSslError> ign;
+            ign.append(err.at(i));
+
+            socket->ignoreSslErrors(ign);
+            break;
+        }
+    }
 }
 
 void Model::slotConnected()
 {
     emit signalConnect("");
+}
+
+void Model::slotDisconnected()
+{
+    emit signalConnect("Connection lost");
 }
 }
 

@@ -96,7 +96,7 @@ Rectangle
                 nameErrors.text =""
             }
             Keys.onTabPressed: surname.focus = true
-            maximumLength: 17
+            maximumLength: 11
         }
     }
 
@@ -288,7 +288,7 @@ Rectangle
             anchors.topMargin: 3
             anchors.leftMargin: 5
 
-            maximumLength: 17
+            maximumLength: 11
             onTextChanged:
             {
                 userSurname.border.color = "black"

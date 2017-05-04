@@ -1,10 +1,8 @@
 #pragma once
 #include <QObject>
-#include "src/DataBaseLib/messagesdatabase.h"
-#include "src/ModelLib/model.h"
-#include "filesendthread.h"
+#include "messagesdatabase.h"
+#include "model.h"
 #include <vector>
-#include <thread>
 
 namespace YAClient
 {

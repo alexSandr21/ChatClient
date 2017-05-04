@@ -12,7 +12,7 @@ namespace DatabaseManager {
 
 class DatabaseManager
 {
-    QSqlDatabase m_db;
+
 public:
     DatabaseManager();
 
@@ -24,6 +24,9 @@ public:
     QString GetLastError() const ;
 
     void FillMapUsername(QMap<QString, ClientInfo::ClientInfo>& map);
+
+private:
+        QSqlDatabase m_db;
 };
 
 }

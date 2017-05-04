@@ -10,5 +10,4 @@ debug:   DESTDIR = $$PWD/bin/debug
 OBJECTS_DIR = $$PWD/obj
 LIB_DIR = $$PWD/lib
 
-#MOC_DIR = $$DESTDIR/moc
 

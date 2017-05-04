@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QTcpSocket>
+#include <QSslSocket>
 
 namespace ClientInfo{
 
@@ -10,7 +10,7 @@ struct ClientInfo {
 
     QString name;
     QString surName;
-    QTcpSocket* pClientSocket;
+    QSslSocket* pClientSocket;
 
 
     friend QDataStream& operator>>(QDataStream& in, ClientInfo& u)

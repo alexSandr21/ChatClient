@@ -32,12 +32,10 @@ LIBS += -L$$LIB_DIR -lDataBaseLib -lModelLib
 
 PRECOMPILED_HEADER = stdafx.h
 
-SOURCES += presenter.cpp \
-    filesendthread.cpp
+SOURCES += presenter.cpp
 
 HEADERS += presenter.h \
-    stdafx.h \
-    filesendthread.h
+    stdafx.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
