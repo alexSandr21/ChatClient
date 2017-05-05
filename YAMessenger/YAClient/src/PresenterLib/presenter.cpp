@@ -1,10 +1,8 @@
-//#include "stdafx.h"
 #include "presenter.h"
 
 
-namespace YAClient
-{
-Presenter::Presenter(QObject *parent) : QObject(parent)
+
+YAClient::Presenter::Presenter(QObject *parent) : QObject(parent)
 {
     connect(&model, SIGNAL(signalConnect(QString)), this, SLOT(slotConnectResult(QString)));
     connect(&model, SIGNAL(signalWrongLogin()), this, SLOT(slotWrongLogin()));
@@ -16,7 +14,7 @@ Presenter::Presenter(QObject *parent) : QObject(parent)
     connect(&model, SIGNAL(signalMessageError(QString)), this, SIGNAL(signalMessageError(QString)));
 }
 
-bool Presenter::methCheckString(QString str)
+bool YAClient::Presenter::methCheckString(QString str)
 {
     if(str.indexOf(DELIM)==-1)
        return true;
@@ -24,7 +22,7 @@ bool Presenter::methCheckString(QString str)
         return false;
 }
 
-bool Presenter::methCheckStringAll(QString str)
+bool YAClient::Presenter::methCheckStringAll(QString str)
 {
     bool res = true;
     std::for_each(WRONGCH.cbegin(), WRONGCH.cend(), [str, &res](const char ch)
@@ -38,17 +36,17 @@ bool Presenter::methCheckStringAll(QString str)
 
 }
 
-QString Presenter::methGetReceiver()
+QString YAClient::Presenter::methGetReceiver()
 {
     return myReceiver;
 }
 
-QString Presenter::methGetLogin()
+QString YAClient::Presenter::methGetLogin()
 {
     return myLogin;
 }
 
-bool Presenter::methIsOnline(QString receiver)
+bool YAClient::Presenter::methIsOnline(QString receiver)
 {
        auto find = clientsMap->find(receiver);
 
@@ -59,12 +57,12 @@ bool Presenter::methIsOnline(QString receiver)
        return false;
 }
 
-bool Presenter::methIsContact()
+bool YAClient::Presenter::methIsContact()
 {
     return contact;
 }
 
-void Presenter::slotGetUsers()
+void YAClient::Presenter::slotGetUsers()
 {
 
     for(auto iter = clientsMap->cbegin(); iter!=clientsMap->cend(); iter++)
@@ -73,7 +71,7 @@ void Presenter::slotGetUsers()
 }
 
 
-void Presenter::slotSendMessage(QString mess)
+void YAClient::Presenter::slotSendMessage(QString mess)
 {
     MessageStruct message{myReceiver, 1, mess, QTime::currentTime().toString()};
     dBase.Insert(message);
@@ -89,12 +87,12 @@ void Presenter::slotSendMessage(QString mess)
 }
 
 
-void Presenter::slotConnect(QString serverIP)
+void YAClient::Presenter::slotConnect(QString serverIP)
 {
     model.connectToHost(serverIP);
 }
 
-void Presenter::slotLogin(QString login, QString pass)
+void YAClient::Presenter::slotLogin(QString login, QString pass)
 {
     myLogin = login;
     login += (DELIM+pass);
@@ -102,7 +100,7 @@ void Presenter::slotLogin(QString login, QString pass)
     model.SendMessage(L_LOG, login);
 }
 
-void Presenter::slotRegistration(QString name, QString surname, QString login, QString pass)
+void YAClient::Presenter::slotRegistration(QString name, QString surname, QString login, QString pass)
 {
     myLogin = login;
     login+=(DELIM+pass+DELIM+name+DELIM+surname);
@@ -110,7 +108,7 @@ void Presenter::slotRegistration(QString name, QString surname, QString login, Q
     model.SendMessage(L_REG, login);
 }
 
-void Presenter::slotSetReceiver(QString receiver)
+void YAClient::Presenter::slotSetReceiver(QString receiver)
 {
         myReceiver = receiver;
         auto find = clientsMap->find(receiver);
@@ -131,7 +129,7 @@ void Presenter::slotSetReceiver(QString receiver)
 
 }
 
-void Presenter::slotSendFile(QString path)
+void YAClient::Presenter::slotSendFile(QString path)
 {
     try
     {
@@ -146,7 +144,7 @@ void Presenter::slotSendFile(QString path)
 
         if(file.size()>MAX_FILE_SIZE)
         {
-            emit signalMessageError("File must by not more 30MB");
+            emit signalMessageError("File must be not more 30MB");
             return;
         }
 
@@ -177,12 +175,12 @@ void Presenter::slotSendFile(QString path)
 
 }
 
-void Presenter::slotConnectResult(QString result)
+void YAClient::Presenter::slotConnectResult(QString result)
 {
     emit signalConnectResult(result);
 }
 
-void Presenter::slotNewClient(QPair<QString, clientInfo> newClient)
+void YAClient::Presenter::slotNewClient(QPair<QString, clientInfo> newClient)
 {
     QString name = newClient.second.name+" "+newClient.second.secName;
     QString status = newClient.second.Online?"online":"";
@@ -195,7 +193,7 @@ void Presenter::slotNewClient(QPair<QString, clientInfo> newClient)
         emit signalSetFriendStatus(login);
 }
 
-void Presenter::slotNewMessage(QString sender, QTime time, QString message)
+void YAClient::Presenter::slotNewMessage(QString sender, QTime time, QString message)
 {
     dBase.Insert(MessageStruct{sender, 0, message, time.toString()});
 
@@ -207,7 +205,7 @@ void Presenter::slotNewMessage(QString sender, QTime time, QString message)
 
 }
 
-void Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteArray file)
+void YAClient::Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteArray file)
 {
     QDir dir;
     QString message = "file: "+fileName;
@@ -239,17 +237,17 @@ void Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteA
 
 }
 
-void Presenter::slotWrongLogin()
+void YAClient::Presenter::slotWrongLogin()
 {
     emit signalLoginResult(false);
 }
 
-void Presenter::slotLoginExist()
+void YAClient::Presenter::slotLoginExist()
 {
     emit signalRegistrationResult(false);
 }
 
-void Presenter::slotOK()
+void YAClient::Presenter::slotOK()
 {
     clientsMap = model.GetClients();
     clientsMap->remove(myLogin);
@@ -265,6 +263,5 @@ void Presenter::slotOK()
     contact = true;
 }
 
-}
 
 

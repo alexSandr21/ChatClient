@@ -1,9 +1,7 @@
-//#include "stdafx.h"
 #include "messagesdatabase.h"
 
-namespace YAClient
-{
-MessagesDataBase::MessagesDataBase(QObject *parent) : QObject(parent)
+
+YAClient::MessagesDataBase::MessagesDataBase(QObject *parent) : QObject(parent)
 {
     dBase = QSqlDatabase::addDatabase("QSQLITE");
     dBase.setDatabaseName("Messages.db");
@@ -12,12 +10,12 @@ MessagesDataBase::MessagesDataBase(QObject *parent) : QObject(parent)
 
 }
 
-int MessagesDataBase::OpenDataBase()
+int YAClient::MessagesDataBase::OpenDataBase()
 {
     return dBase.open();
 }
 
-bool MessagesDataBase::CreateTabel(const QString &tabelName)
+bool YAClient::MessagesDataBase::CreateTabel(const QString &tabelName)
 {
     bool res = true;
 
@@ -41,7 +39,7 @@ bool MessagesDataBase::CreateTabel(const QString &tabelName)
     return res;
 }
 
-void MessagesDataBase::Insert(const MessageStruct & mess)
+void YAClient::MessagesDataBase::Insert(const MessageStruct & mess)
 {
     QString qe = "INSERT INTO "+name+" (interlocutor, myAnswer, message, time) VALUES (:interlocutor, :myAnswer, :message, :time);";
 
@@ -63,7 +61,7 @@ void MessagesDataBase::Insert(const MessageStruct & mess)
 
 
 
-QVector<MessageStruct> MessagesDataBase::GetMessages(const QString &interlocutor)
+QVector<YAClient::MessageStruct> YAClient::MessagesDataBase::GetMessages(const QString &interlocutor)
 {
     QVector<MessageStruct> messages;
     if( query.exec("SELECT * FROM "+name+" WHERE interlocutor = '"+interlocutor+"';"))
@@ -89,6 +87,5 @@ QVector<MessageStruct> MessagesDataBase::GetMessages(const QString &interlocutor
         //write error in log file
     }
     return messages;
-}
 }
 

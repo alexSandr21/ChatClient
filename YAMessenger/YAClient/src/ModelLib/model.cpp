@@ -1,24 +1,22 @@
-//#include "stdafx.h"
 #include "model.h"
 
 
-namespace YAClient
-{
 
-Model::Model(QObject *parent) : QObject(parent)
+
+YAClient::Model::Model(QObject *parent) : QObject(parent)
 {
     port = 3004;
     blockSize =0;
 
 }
 
-Model::~Model()
+YAClient::Model::~Model()
 {
     socket->close();
     socket.reset();
 }
 
-void Model::connectToHost(const QString &hostIP)
+void YAClient::Model::connectToHost(const QString &hostIP)
 {
     socket.reset(new QSslSocket());
 
@@ -47,7 +45,7 @@ void Model::connectToHost(const QString &hostIP)
 
 }
 
-void Model::SendMessage(const int &label, const QString & message, const QByteArray & file)
+void YAClient::Model::SendMessage(const int &label, const QString & message, const QByteArray & file)
 {
     try
     {
@@ -76,13 +74,13 @@ void Model::SendMessage(const int &label, const QString & message, const QByteAr
 
 }
 
-QMap<QString, clientInfo> *Model::GetClients()
+QMap<QString, YAClient::clientInfo>* YAClient::Model::GetClients()
 {
     return &clientsList;
 }
 
 
-void Model::Parser(QDataStream &mess)
+void YAClient::Model::Parser(QDataStream &mess)
 {
     int label= 0;
 
@@ -140,7 +138,7 @@ void Model::Parser(QDataStream &mess)
     }
 }
 
-void Model::slotRead()
+void YAClient::Model::slotRead()
 {
     QDataStream in(socket.get());
     in.setVersion(QDataStream::Qt_DefaultCompiledVersion);
@@ -163,7 +161,7 @@ void Model::slotRead()
     }
 }
 
-void Model::slotConnectError(const QList<QSslError> &err)
+void YAClient::Model::slotConnectError(const QList<QSslError> &err)
 {
 
     for(int i=0; i<err.size();i++)
@@ -181,15 +179,15 @@ void Model::slotConnectError(const QList<QSslError> &err)
     }
 }
 
-void Model::slotConnected()
+void YAClient::Model::slotConnected()
 {
     emit signalConnect("");
 }
 
-void Model::slotDisconnected()
+void YAClient::Model::slotDisconnected()
 {
     emit signalConnect("Connection lost");
 }
-}
+
 
 

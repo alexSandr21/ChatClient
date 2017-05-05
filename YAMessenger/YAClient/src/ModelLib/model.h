@@ -1,7 +1,9 @@
 #pragma once
 
-#include "stdafx.h"
-#include <QMutex>
+#include <QTime>
+#include <QMap>
+#include <QObject>
+#include <QPair>
 #include <memory>
 #include <QFile>
 #include <QVector>
@@ -15,7 +17,7 @@
 
 namespace YAClient
 {
-const QByteArray certByte("-----BEGIN CERTIFICATE-----\r\n"
+    const QByteArray certByte("-----BEGIN CERTIFICATE-----\r\n"
                           "MIIF5DCCA8ygAwIBAgIJAL0Nmj/CxfHyMA0GCSqGSIb3DQEBCwUAMIGGMQswCQYD\r\n"
                           "VQQGEwJVQTEPMA0GA1UECAwGRG5pcHJvMQ8wDQYDVQQHDAZEbmlwcm8xDjAMBgNV\r\n"
                           "BAoMBVlBb3JnMQ4wDAYDVQQLDAVZQW9yZzESMBAGA1UEAwwJWUFvcmcuY29tMSEw\r\n"
@@ -50,43 +52,45 @@ const QByteArray certByte("-----BEGIN CERTIFICATE-----\r\n"
                           "ufciMglRankrcBSBvvn38NgzZDtzrMG6\r\n"
                           "-----END CERTIFICATE-----");
 
-class Model : public QObject
-{
-    Q_OBJECT
+    class Model : public QObject
+    {
+        Q_OBJECT
 
-    std::unique_ptr<QSslSocket> socket;
-    uint blockSize = 0;
-    QMap<QString, clientInfo> clientsList;
-    int port;
+        void Parser(QDataStream & mess);
 
-    void Parser(QDataStream & mess);
+    public:
 
-public:
+        explicit Model(QObject *parent = 0);
+        ~Model();
 
-    explicit Model(QObject *parent = 0);
-    ~Model();
+        void connectToHost(const QString &hostIP);
+        QMap<QString, clientInfo>*GetClients();
 
-    void connectToHost(const QString &hostIP);
-    QMap<QString, clientInfo>*GetClients();
+    signals:
 
-signals:
+        //signals for view
+        void signalOK();
+        void signalNewClient(const QPair<QString, clientInfo> & newClient);
+        void signalNewMessage(const QString & sender, const QTime &time, const QString & message);
+        void signalNewFile(const QString &sender, const QTime &time, const QString & fileName, const QByteArray &file);
+        void signalConnect(const QString & err);
+        void signalWrongLogin();
+        void signalLoginExist();
+        void signalMessageError(const QString & mess);
 
-    //signals for GUI
-    void signalOK();
-    void signalNewClient(const QPair<QString, clientInfo> & newClient);
-    void signalNewMessage(const QString & sender, const QTime &time, const QString & message);
-    void signalNewFile(const QString &sender, const QTime &time, const QString & fileName, const QByteArray &file);
-    void signalConnect(const QString & err);
-    void signalWrongLogin();
-    void signalLoginExist();
-    void signalMessageError(const QString & mess);
+    public slots:
 
-public slots:
+        void SendMessage(const int & label, const QString & message, const QByteArray & file = QByteArray());
+        void slotRead();
+        void slotConnectError(const QList<QSslError> &err);
+        void slotConnected();
+        void slotDisconnected();
 
-    void SendMessage(const int & label, const QString & message, const QByteArray & file = QByteArray());
-    void slotRead();
-    void slotConnectError(const QList<QSslError> &err);
-    void slotConnected();
-    void slotDisconnected();
-};
+    private:
+
+        std::unique_ptr<QSslSocket> socket;
+        uint blockSize = 0;
+        QMap<QString, clientInfo> clientsList;
+        int port;
+    };
 }

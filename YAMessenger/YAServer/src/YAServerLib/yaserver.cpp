@@ -327,7 +327,7 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
         StructUI.pClientSocket = pClientSocket;
 
 
-        if(m_mapClients.find(strVec[0]) != m_mapClients.end())
+        if(m_dbManager.IsUsernameBusy(strVec[0]))
         {
             SendToClient(pClientSocket, REG_ERROR);
             return;
@@ -337,13 +337,15 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
         //m_dbManager.WriteToDataBase(strVec[0], strVec[1], StructUI);
 
 
-        if(!m_dbManager.WriteToDataBase(QCryptographicHash::hash(QByteArray::fromStdString(strUserData), QCryptographicHash::Sha3_384), StructUI))
+        if(!m_dbManager.WriteToDataBase(strVec[0], QCryptographicHash::hash(QByteArray::fromStdString(strVec[1].toStdString()), QCryptographicHash::Sha3_384), StructUI))
         {
             if(m_pLogFile->isOpen())
             {
                 m_pLogFile->write("Error: DB error\r\n");
-                SendToClient(pClientSocket, REG_ERROR);
             }
+
+            SendToClient(pClientSocket, REG_ERROR);
+            return;
         }
 
         qDebug()<<"Client "<<strVec[0]<<" registrate at server";
@@ -353,7 +355,7 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
     {
 
 
-        if(!m_dbManager.IsCorrectLogin(QCryptographicHash::hash(QByteArray::fromStdString(strUserData), QCryptographicHash::Sha3_384)))
+        if(!m_dbManager.IsCorrectLogin(strVec[0],QCryptographicHash::hash(QByteArray::fromStdString(strVec[1].toStdString()), QCryptographicHash::Sha3_384)))
         {
             SendToClient(pClientSocket, LOG_ERROR);
             return;
@@ -361,6 +363,18 @@ void YAServer::ReadClientREG_LOG(QDataStream &in, QSslSocket *pClientSocket, con
 
 
         StructUI = m_mapClients.value(strVec[0]);
+
+        if(StructUI.name.isEmpty())
+        {
+            SendToClient(pClientSocket, LOG_ERROR);
+            return;
+        }
+
+        if(StructUI.pClientSocket)
+        {
+            SendToClient(pClientSocket, LOG_ERROR);
+            return;
+        }
 
         StructUI.pClientSocket = pClientSocket;
 

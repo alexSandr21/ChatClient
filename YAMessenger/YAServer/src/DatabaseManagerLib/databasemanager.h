@@ -10,28 +10,24 @@
 
 namespace DatabaseManager {
 
-class DatabaseManager
-{
+    class DatabaseManager
+    {
 
-public:
-    DatabaseManager();
+    public:
+        void SetLogFile(std::shared_ptr<QFile> t_pLogFile);
 
-    void SetLogFile(std::shared_ptr<QFile> t_pLogFile);
+        bool ConnectToDataBase();
+        bool IsUsernameBusy(const QString& Username);
+        bool WriteToDataBase(QString Username, const QByteArray& Password, ClientInfo::ClientInfo UInfo);
+        bool IsCorrectLogin(QString Username, const QByteArray& Password);
 
-    bool ConnectToDataBase();
-    bool IsUsernameBusy(const QString& Username);
-    bool WriteToDataBase(QString Username, QString Password, ClientInfo::ClientInfo UInfo);
-    bool WriteToDataBase(const QByteArray& t_UserHash, const ClientInfo::ClientInfo& t_UInfo);
-    bool IsCorrectLogin(QString Username, QString Password);
-    bool IsCorrectLogin(const QByteArray& t_UserHash);
+        QString GetLastError() const ;
 
-    QString GetLastError() const ;
+        void FillMapUsername(QMap<QString, ClientInfo::ClientInfo>& map);
 
-    void FillMapUsername(QMap<QString, ClientInfo::ClientInfo>& map);
-
-private:
-        QSqlDatabase m_db;
-        std::shared_ptr<QFile> m_pLogFile;
+    private:
+            QSqlDatabase m_db;
+            std::shared_ptr<QFile> m_pLogFile;
 };
 
 }

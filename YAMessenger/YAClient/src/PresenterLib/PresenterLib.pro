@@ -30,12 +30,11 @@ INCLUDEPATH += $$MODELLIB
 
 LIBS += -L$$LIB_DIR -lDataBaseLib -lModelLib
 
-PRECOMPILED_HEADER = stdafx.h
+PRECOMPILED_HEADER =
 
 SOURCES += presenter.cpp
 
-HEADERS += presenter.h \
-    stdafx.h
+HEADERS += presenter.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
