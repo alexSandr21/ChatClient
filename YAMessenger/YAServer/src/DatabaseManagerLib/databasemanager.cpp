@@ -115,7 +115,6 @@ bool DatabaseManager::DatabaseManager::IsCorrectLogin(QString Username, const QB
     {
         if(qry.next())
         {
-            qDebug()<<"Login succseed";
             return true;
         }
         qDebug()<<"Wrong Username or Password";
