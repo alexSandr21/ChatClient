@@ -34,8 +34,6 @@ bool YAClient::MessagesDataBase::CreateTabel(const QString &tabelName)
             res = false;
         }
 
-
-
     return res;
 }
 

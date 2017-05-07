@@ -210,18 +210,11 @@ void YAClient::Presenter::slotNewFile(const QString & sender, const QTime & time
     QDir dir;
     QString message = "file: "+fileName;
 
-    if(dir.mkdir("Received files"))
-    {
-        dir.mkdir("Received files//"+myLogin);
-        dir.mkdir("Received files//"+myLogin+"//from "+sender);
-    }
-    else
-        slotWriteLog("Error create folder for recived files");
-
-
+    dir.mkdir("Received files");
+    dir.mkdir("Received files//"+myLogin);
+    dir.mkdir("Received files//"+myLogin+"//from "+sender);
 
     QString filePath("Received files//"+myLogin+"//from "+sender+"//"+fileName);
-
 
     QFile rFile(filePath);
 
