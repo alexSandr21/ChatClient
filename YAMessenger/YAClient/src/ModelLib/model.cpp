@@ -18,10 +18,6 @@ YAClient::Model::~Model()
 
 void YAClient::Model::connectToHost(const QString &hostIP)
 {
-    //
-     emit signalError("model test");
-
-
     socket.reset(new QSslSocket());
 
     connect(socket.get(), SIGNAL(readyRead()), SLOT(slotRead()));
@@ -180,14 +176,13 @@ void YAClient::Model::slotConnectError(const QList<QSslError> &err)
     {
         if(err.at(i).error()==QSslError::HostNameMismatch)
         {
-            qDebug()<<"true";
-
             QList<QSslError> ign;
             ign.append(err.at(i));
 
             socket->ignoreSslErrors(ign);
-            break;
         }
+        else
+            emit signalError(err.at(i).errorString());
     }
 }
 

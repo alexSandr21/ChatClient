@@ -93,8 +93,6 @@ void YAClient::Presenter::slotSendMessage(QString mess)
 
 void YAClient::Presenter::slotConnect(QString serverIP)
 {
-    //
-    slotWriteLog("presenter test");
     model.connectToHost(serverIP);
 }
 
