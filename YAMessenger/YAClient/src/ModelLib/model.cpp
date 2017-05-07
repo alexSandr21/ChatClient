@@ -18,6 +18,10 @@ YAClient::Model::~Model()
 
 void YAClient::Model::connectToHost(const QString &hostIP)
 {
+    //
+     emit signalError("model test");
+
+
     socket.reset(new QSslSocket());
 
     connect(socket.get(), SIGNAL(readyRead()), SLOT(slotRead()));
@@ -28,7 +32,8 @@ void YAClient::Model::connectToHost(const QString &hostIP)
     QSslCertificate cert(certByte);
     if(cert.isNull())
     {
-        emit signalConnect("2Connection error");
+        emit signalConnectResult("Connection error");
+        emit signalError("Error sertificate read");
         return;
     }
     socket->addCaCertificate(cert);
@@ -40,7 +45,7 @@ void YAClient::Model::connectToHost(const QString &hostIP)
     socket->connectToHostEncrypted(hostIP, port);
 
     if(!socket->waitForEncrypted(1000))
-        emit signalConnect("Connection error");
+        emit signalConnectResult("Connection error");
 
 
 }
@@ -66,9 +71,9 @@ void YAClient::Model::SendMessage(const int &label, const QString & message, con
         qDebug()<<socket->write(arrBlock);
         qDebug()<<socket->waitForBytesWritten(1);
     }
-    catch(const std::exception&ex)
+    catch(const std::exception & ex)
     {
-        //write error in log file
+        emit signalError(ex.what());
         emit signalMessageError("Error send file");
     }
 
@@ -133,31 +138,38 @@ void YAClient::Model::Parser(QDataStream &mess)
         break;
 
     default:
-        //write label error in log file
+        emit signalError("Protocol error");
         break;
     }
 }
 
 void YAClient::Model::slotRead()
 {
-    QDataStream in(socket.get());
-    in.setVersion(QDataStream::Qt_DefaultCompiledVersion);
-
-    for(;;)
+    try
     {
-        if(!blockSize)
+        QDataStream in(socket.get());
+        in.setVersion(QDataStream::Qt_DefaultCompiledVersion);
+
+        for(;;)
         {
-            if(socket->bytesAvailable()<sizeof(uint))
+            if(!blockSize)
+            {
+                if(socket->bytesAvailable()<sizeof(uint))
+                    break;
+
+                in>>blockSize;
+            }
+
+            if(socket->bytesAvailable()<blockSize)
                 break;
 
-            in>>blockSize;
+            blockSize = 0;
+            Parser(in);
         }
-
-        if(socket->bytesAvailable()<blockSize)
-            break;
-
-        blockSize = 0;
-        Parser(in);
+    }
+    catch(const std::exception &ex)
+    {
+        emit signalError(ex.what());
     }
 }
 
@@ -181,12 +193,12 @@ void YAClient::Model::slotConnectError(const QList<QSslError> &err)
 
 void YAClient::Model::slotConnected()
 {
-    emit signalConnect("");
+    emit signalConnectResult("");
 }
 
 void YAClient::Model::slotDisconnected()
 {
-    emit signalConnect("Connection lost");
+    emit signalConnectResult("Connection lost");
 }
 
 

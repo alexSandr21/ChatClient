@@ -6,11 +6,19 @@
 
 int main(int argc, char *argv[])
 {
+    std::shared_ptr<QFile> logFile(new QFile("YAClient.log"));
+
+    if(logFile->size()>YAClient::MAX_FILE_SIZE)
+        logFile->open(QIODevice::WriteOnly);
+
+    else
+        logFile->open(QIODevice::WriteOnly|QIODevice::Append);
+
     try
     {
         QGuiApplication app(argc, argv);
 
-        YAClient::Presenter presenter;
+        YAClient::Presenter presenter(logFile);
 
         QQmlApplicationEngine engine;
 
@@ -24,7 +32,17 @@ int main(int argc, char *argv[])
     }
     catch(const std::exception &ex)
     {
-        //write fatal error in log file
+       if(logFile->isOpen())
+       {
+           QByteArray str;
+           str.append(QDateTime::currentDateTime().toString());
+           str.append(" ");
+           str.append(ex.what());
+           str.append("\r\n");
+
+           logFile->write(str);
+       }
+
         return -1;
     }
 }

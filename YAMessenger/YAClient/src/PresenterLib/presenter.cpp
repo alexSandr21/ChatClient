@@ -2,9 +2,11 @@
 
 
 
-YAClient::Presenter::Presenter(QObject *parent) : QObject(parent)
+YAClient::Presenter::Presenter(std::shared_ptr<QFile> log, QObject *parent) : QObject(parent)
 {
-    connect(&model, SIGNAL(signalConnect(QString)), this, SLOT(slotConnectResult(QString)));
+    contact = false;
+    logFile = log;
+    connect(&model, SIGNAL(signalConnectResult(QString)), this, SIGNAL(signalConnectResult(QString)));
     connect(&model, SIGNAL(signalWrongLogin()), this, SLOT(slotWrongLogin()));
     connect(&model, SIGNAL(signalOK()), this, SLOT(slotOK()));
     connect(&model, SIGNAL(signalLoginExist()), this, SLOT(slotLoginExist()));
@@ -12,6 +14,8 @@ YAClient::Presenter::Presenter(QObject *parent) : QObject(parent)
     connect(&model, SIGNAL(signalNewFile(QString,QTime,QString,QByteArray)), this, SLOT(slotNewFile(QString,QTime,QString,QByteArray)));
     connect(&model, SIGNAL(signalNewClient(QPair<QString,clientInfo>)), this, SLOT(slotNewClient(QPair<QString,clientInfo>)));
     connect(&model, SIGNAL(signalMessageError(QString)), this, SIGNAL(signalMessageError(QString)));
+    connect(&model, SIGNAL(signalError(QString)), this, SLOT(slotWriteLog(QString)));
+    connect(&dBase, SIGNAL(signalError(QString)), this, SLOT(slotWriteLog(QString)));
 }
 
 bool YAClient::Presenter::methCheckString(QString str)
@@ -19,7 +23,7 @@ bool YAClient::Presenter::methCheckString(QString str)
     if(str.indexOf(DELIM)==-1)
        return true;
 
-        return false;
+    return false;
 }
 
 bool YAClient::Presenter::methCheckStringAll(QString str)
@@ -48,13 +52,13 @@ QString YAClient::Presenter::methGetLogin()
 
 bool YAClient::Presenter::methIsOnline(QString receiver)
 {
-       auto find = clientsMap->find(receiver);
+    auto find = clientsMap->find(receiver);
 
-       if(find!=clientsMap->cend())
-           if(find->Online)
-               return true;
+    if(find!=clientsMap->cend())
+        if(find->Online)
+            return true;
 
-       return false;
+    return false;
 }
 
 bool YAClient::Presenter::methIsContact()
@@ -89,6 +93,8 @@ void YAClient::Presenter::slotSendMessage(QString mess)
 
 void YAClient::Presenter::slotConnect(QString serverIP)
 {
+    //
+    slotWriteLog("presenter test");
     model.connectToHost(serverIP);
 }
 
@@ -150,6 +156,7 @@ void YAClient::Presenter::slotSendFile(QString path)
 
         QString fileName;
         auto pos = path.lastIndexOf('/');
+
         if(pos==-1)
             fileName = path;
         else
@@ -169,18 +176,13 @@ void YAClient::Presenter::slotSendFile(QString path)
     }
     catch(const std::exception&ex)
     {
-        //write error in log file
+        slotWriteLog(ex.what());
         emit signalMessageError("Error send file");
     }
 
 }
 
-void YAClient::Presenter::slotConnectResult(QString result)
-{
-    emit signalConnectResult(result);
-}
-
-void YAClient::Presenter::slotNewClient(QPair<QString, clientInfo> newClient)
+void YAClient::Presenter::slotNewClient(const QPair<QString, clientInfo> & newClient)
 {
     QString name = newClient.second.name+" "+newClient.second.secName;
     QString status = newClient.second.Online?"online":"";
@@ -193,7 +195,7 @@ void YAClient::Presenter::slotNewClient(QPair<QString, clientInfo> newClient)
         emit signalSetFriendStatus(login);
 }
 
-void YAClient::Presenter::slotNewMessage(QString sender, QTime time, QString message)
+void YAClient::Presenter::slotNewMessage(const QString & sender, const QTime & time, const QString & message)
 {
     dBase.Insert(MessageStruct{sender, 0, message, time.toString()});
 
@@ -205,16 +207,20 @@ void YAClient::Presenter::slotNewMessage(QString sender, QTime time, QString mes
 
 }
 
-void YAClient::Presenter::slotNewFile(QString sender, QTime time, QString fileName, QByteArray file)
+void YAClient::Presenter::slotNewFile(const QString & sender, const QTime & time, const QString & fileName, const QByteArray & file)
 {
     QDir dir;
     QString message = "file: "+fileName;
 
-    dir.mkdir("Received files");
-        
+    if(dir.mkdir("Received files"))
+    {
+        dir.mkdir("Received files//"+myLogin);
+        dir.mkdir("Received files//"+myLogin+"//from "+sender);
+    }
+    else
+        slotWriteLog("Error create folder for recived files");
 
-    dir.mkdir("Received files//"+myLogin);
-    dir.mkdir("Received files//"+myLogin+"//from "+sender);
+
 
     QString filePath("Received files//"+myLogin+"//from "+sender+"//"+fileName);
 
@@ -253,14 +259,31 @@ void YAClient::Presenter::slotOK()
     clientsMap->remove(myLogin);
 
 
-    dBase.OpenDataBase();
-    dBase.CreateTabel(myLogin);
+    if(dBase.OpenDataBase())
+        dBase.CreateTabel(myLogin);
+
+    else
+        slotWriteLog("Error data base open");
 
     emit signalLoginResult(true);
     emit signalRegistrationResult(true);
     emit signalSetTitle(myLogin);
 
     contact = true;
+}
+
+void YAClient::Presenter::slotWriteLog(const QString &errStr)
+{
+    if(logFile->isOpen())
+    {
+        QByteArray str;
+        str.append(QDateTime::currentDateTime().toString());
+        str.append(" ");
+        str.append(errStr);
+        str.append("\r\n");
+
+        logFile->write(str);
+    }
 }
 
 

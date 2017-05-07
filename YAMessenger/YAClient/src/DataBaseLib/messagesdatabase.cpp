@@ -30,7 +30,7 @@ bool YAClient::MessagesDataBase::CreateTabel(const QString &tabelName)
     if(!query.exec(str))
         if(query.lastError().number()!=-1)
         {
-            //write error in log file
+            emit signalError(query.lastError().text());
             res = false;
         }
 
@@ -51,10 +51,8 @@ void YAClient::MessagesDataBase::Insert(const MessageStruct & mess)
     query.bindValue(3, mess.time);
 
     if(!query.exec())
-    {
-        QString str = query.lastError().text();
-        //write error in log file
-    }
+        emit signalError(query.lastError().text());
+
 
 
 }
@@ -64,6 +62,7 @@ void YAClient::MessagesDataBase::Insert(const MessageStruct & mess)
 QVector<YAClient::MessageStruct> YAClient::MessagesDataBase::GetMessages(const QString &interlocutor)
 {
     QVector<MessageStruct> messages;
+
     if( query.exec("SELECT * FROM "+name+" WHERE interlocutor = '"+interlocutor+"';"))
     {
         record = query.record();
@@ -82,10 +81,8 @@ QVector<YAClient::MessageStruct> YAClient::MessagesDataBase::GetMessages(const Q
 
     }
     else
-    {
-        QString str = query.lastError().text();
-        //write error in log file
-    }
+        emit signalError(query.lastError().text());
+
     return messages;
 }
 

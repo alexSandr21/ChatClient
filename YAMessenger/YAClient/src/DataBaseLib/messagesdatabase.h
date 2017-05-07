@@ -33,6 +33,9 @@ namespace YAClient
         void Insert(const MessageStruct & mess);
         QVector<MessageStruct> GetMessages( const QString &interlocutor);
 
+    signals:
+        void signalError(const QString & errStr);
+
     private:
 
         QSqlDatabase dBase;

@@ -73,10 +73,12 @@ namespace YAClient
         void signalNewClient(const QPair<QString, clientInfo> & newClient);
         void signalNewMessage(const QString & sender, const QTime &time, const QString & message);
         void signalNewFile(const QString &sender, const QTime &time, const QString & fileName, const QByteArray &file);
-        void signalConnect(const QString & err);
+        void signalConnectResult(const QString & err);
         void signalWrongLogin();
         void signalLoginExist();
         void signalMessageError(const QString & mess);
+
+        void signalError(const QString & errStr);
 
     public slots:
 

@@ -2,6 +2,7 @@
 #include <QObject>
 #include "messagesdatabase.h"
 #include "model.h"
+#include <QDateTime>
 #include <vector>
 
 namespace YAClient
@@ -15,7 +16,7 @@ namespace YAClient
         Q_OBJECT
 
     public:
-        explicit Presenter(QObject *parent = 0);
+        explicit Presenter(std::shared_ptr<QFile> log, QObject *parent = 0);
 
         Q_INVOKABLE bool methCheckString(QString str);
         Q_INVOKABLE bool methCheckStringAll(QString str);
@@ -50,23 +51,24 @@ namespace YAClient
         void slotSendFile(QString path);
 
         //slots for MODEL
-        void slotConnectResult(QString result);
-        void slotNewClient(QPair<QString, clientInfo> newClient);
-        void slotNewMessage(QString sender, QTime time, QString message);
-        void slotNewFile(QString sender, QTime time, QString fileName, QByteArray file);
+        void slotNewClient(const QPair<QString, clientInfo> & newClient);
+        void slotNewMessage(const QString & sender, const QTime & time, const QString & message);
+        void slotNewFile(const QString & sender, const QTime & time, const QString & fileName, const QByteArray & file);
         void slotWrongLogin();
         void slotLoginExist();
         void slotOK();
+        void slotWriteLog(const QString & errStr);
 
     private:
 
         QMap<QString, clientInfo> * clientsMap;
+        std::shared_ptr<QFile> logFile;
         QString myReceiver;
         QString receiverName;
         QString myLogin;
         MessagesDataBase dBase;
         Model model;
-        bool contact = false;
+        bool contact;
     };
 
 }
