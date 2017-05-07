@@ -14,6 +14,9 @@ namespace DatabaseManager {
     {
 
     public:
+
+        ~DatabaseManager();
+
         void SetLogFile(std::shared_ptr<QFile> t_pLogFile);
 
         bool ConnectToDataBase();
@@ -24,6 +27,7 @@ namespace DatabaseManager {
         QString GetLastError() const ;
 
         void FillMapUsername(QMap<QString, ClientInfo::ClientInfo>& map);
+        QSqlDatabase GetDB();
 
     private:
             QSqlDatabase m_db;

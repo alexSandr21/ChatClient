@@ -3,6 +3,11 @@
 
 
 
+DatabaseManager::DatabaseManager::~DatabaseManager()
+{
+    m_db.close();
+}
+
 void DatabaseManager::DatabaseManager::SetLogFile(std::shared_ptr<QFile> t_pLogFile)
 {
     m_pLogFile = t_pLogFile;
@@ -10,8 +15,15 @@ void DatabaseManager::DatabaseManager::SetLogFile(std::shared_ptr<QFile> t_pLogF
 
 bool DatabaseManager::DatabaseManager::ConnectToDataBase()
 {
-    m_db = QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName("ServerDB.db");
+    if(QSqlDatabase::contains(QSqlDatabase::defaultConnection))
+    {
+        m_db = QSqlDatabase::database();
+    }
+    else
+    {
+        m_db = QSqlDatabase::addDatabase("QSQLITE");
+        m_db.setDatabaseName("ServerDB.db");
+    }
 
     if(m_db.open())
     {
@@ -89,7 +101,7 @@ bool DatabaseManager::DatabaseManager::WriteToDataBase(QString Username, const Q
 
     if(qry.exec())
     {
-        qDebug()<<"Refistration succesed";
+        qDebug()<<"Registration succesed";
         return true;
     }
     else
@@ -108,9 +120,8 @@ bool DatabaseManager::DatabaseManager::IsCorrectLogin(QString Username, const QB
 {
     QSqlQuery qry(m_db);
 
-    qry.prepare("SELECT Username, Password From Users WHERE Username= :name AND Password= :pass");
-    qry.bindValue(":name", Username);
-    qry.bindValue(":pass", Password.toHex());
+    qry.prepare("SELECT Username, Password From Users WHERE Username= '" + Username + "' AND Password= '" + Password.toHex() + "';");
+
     if(qry.exec())
     {
         if(qry.next())
@@ -159,6 +170,11 @@ void DatabaseManager::DatabaseManager::FillMapUsername(QMap<QString, ClientInfo:
             m_pLogFile->write(QByteArray::fromStdString(qry.lastError().text().toStdString()));
         }
     }
+}
+
+QSqlDatabase DatabaseManager::DatabaseManager::GetDB()
+{
+    return m_db;
 }
 
 
