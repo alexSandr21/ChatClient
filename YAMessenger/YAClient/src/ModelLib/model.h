@@ -90,9 +90,9 @@ namespace YAClient
 
     private:
 
-        std::unique_ptr<QSslSocket> socket;
-        uint blockSize = 0;
-        QMap<QString, clientInfo> clientsList;
-        int port;
+        std::unique_ptr<QSslSocket> m_socket;
+        uint m_blockSize;
+        QMap<QString, clientInfo> m_clientsList;
+        int m_port;
     };
 }

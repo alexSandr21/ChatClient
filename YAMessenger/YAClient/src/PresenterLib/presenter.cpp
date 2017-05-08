@@ -4,18 +4,18 @@
 
 YAClient::Presenter::Presenter(std::shared_ptr<QFile> log, QObject *parent) : QObject(parent)
 {
-    contact = false;
-    logFile = log;
-    connect(&model, SIGNAL(signalConnectResult(QString)), this, SIGNAL(signalConnectResult(QString)));
-    connect(&model, SIGNAL(signalWrongLogin()), this, SLOT(slotWrongLogin()));
-    connect(&model, SIGNAL(signalOK()), this, SLOT(slotOK()));
-    connect(&model, SIGNAL(signalLoginExist()), this, SLOT(slotLoginExist()));
-    connect(&model, SIGNAL(signalNewMessage(QString, QTime, QString)), this, SLOT(slotNewMessage(QString, QTime, QString)));
-    connect(&model, SIGNAL(signalNewFile(QString,QTime,QString,QByteArray)), this, SLOT(slotNewFile(QString,QTime,QString,QByteArray)));
-    connect(&model, SIGNAL(signalNewClient(QPair<QString,clientInfo>)), this, SLOT(slotNewClient(QPair<QString,clientInfo>)));
-    connect(&model, SIGNAL(signalMessageError(QString)), this, SIGNAL(signalMessageError(QString)));
-    connect(&model, SIGNAL(signalError(QString)), this, SLOT(slotWriteLog(QString)));
-    connect(&dBase, SIGNAL(signalError(QString)), this, SLOT(slotWriteLog(QString)));
+    m_contact = false;
+    m_logFile = log;
+    connect(&m_model, SIGNAL(signalConnectResult(QString)), this, SIGNAL(signalConnectResult(QString)));
+    connect(&m_model, SIGNAL(signalWrongLogin()), this, SLOT(slotWrongLogin()));
+    connect(&m_model, SIGNAL(signalOK()), this, SLOT(slotOK()));
+    connect(&m_model, SIGNAL(signalLoginExist()), this, SLOT(slotLoginExist()));
+    connect(&m_model, SIGNAL(signalNewMessage(QString, QTime, QString)), this, SLOT(slotNewMessage(QString, QTime, QString)));
+    connect(&m_model, SIGNAL(signalNewFile(QString,QTime,QString,QByteArray)), this, SLOT(slotNewFile(QString,QTime,QString,QByteArray)));
+    connect(&m_model, SIGNAL(signalNewClient(QPair<QString,clientInfo>)), this, SLOT(slotNewClient(QPair<QString,clientInfo>)));
+    connect(&m_model, SIGNAL(signalMessageError(QString)), this, SIGNAL(signalMessageError(QString)));
+    connect(&m_model, SIGNAL(signalError(QString)), this, SLOT(slotWriteLog(QString)));
+    connect(&m_dBase, SIGNAL(signalError(QString)), this, SLOT(slotWriteLog(QString)));
 }
 
 bool YAClient::Presenter::methCheckString(QString str)
@@ -42,19 +42,19 @@ bool YAClient::Presenter::methCheckStringAll(QString str)
 
 QString YAClient::Presenter::methGetReceiver()
 {
-    return myReceiver;
+    return m_myReceiver;
 }
 
 QString YAClient::Presenter::methGetLogin()
 {
-    return myLogin;
+    return m_myLogin;
 }
 
 bool YAClient::Presenter::methIsOnline(QString receiver)
 {
-    auto find = clientsMap->find(receiver);
+    auto find = m_clientsMap->find(receiver);
 
-    if(find!=clientsMap->cend())
+    if(find!=m_clientsMap->cend())
         if(find->Online)
             return true;
 
@@ -63,13 +63,13 @@ bool YAClient::Presenter::methIsOnline(QString receiver)
 
 bool YAClient::Presenter::methIsContact()
 {
-    return contact;
+    return m_contact;
 }
 
 void YAClient::Presenter::slotGetUsers()
 {
 
-    for(auto iter = clientsMap->cbegin(); iter!=clientsMap->cend(); iter++)
+    for(auto iter = m_clientsMap->cbegin(); iter!=m_clientsMap->cend(); iter++)
         emit signalSetUsers((iter.value().name+" "+iter.value().secName),(iter.value().Online?"online":""), iter.key());
 
 }
@@ -77,55 +77,55 @@ void YAClient::Presenter::slotGetUsers()
 
 void YAClient::Presenter::slotSendMessage(QString mess)
 {
-    MessageStruct message{myReceiver, 1, mess, QTime::currentTime().toString()};
-    dBase.Insert(message);
+    MessageStruct message{m_myReceiver, 1, mess, QTime::currentTime().toString()};
+    m_dBase.Insert(message);
 
     emit signalWriteMessage(message.interlocutor,
                             message.myAnswer?true:false,
                             message.message,
                             message.time);
 
-    QString messForModel(myLogin+DELIM+myReceiver+DELIM+mess);
+    QString messForModel(m_myLogin+DELIM+m_myReceiver+DELIM+mess);
 
-    model.SendMessage(L_MESS, messForModel);
+    m_model.SendMessage(L_MESS, messForModel);
 }
 
 
 void YAClient::Presenter::slotConnect(QString serverIP)
 {
-    model.connectToHost(serverIP);
+    m_model.connectToHost(serverIP);
 }
 
 void YAClient::Presenter::slotLogin(QString login, QString pass)
 {
-    myLogin = login;
+    m_myLogin = login;
     login += (DELIM+pass);
 
-    model.SendMessage(L_LOG, login);
+    m_model.SendMessage(L_LOG, login);
 }
 
 void YAClient::Presenter::slotRegistration(QString name, QString surname, QString login, QString pass)
 {
-    myLogin = login;
+    m_myLogin = login;
     login+=(DELIM+pass+DELIM+name+DELIM+surname);
 
-    model.SendMessage(L_REG, login);
+    m_model.SendMessage(L_REG, login);
 }
 
 void YAClient::Presenter::slotSetReceiver(QString receiver)
 {
-        myReceiver = receiver;
-        auto find = clientsMap->find(receiver);
+        m_myReceiver = receiver;
+        auto find = m_clientsMap->find(receiver);
 
-        if(find!=clientsMap->cend())
-            receiverName = find->name;
+        if(find!=m_clientsMap->cend())
+            m_receiverName = find->name;
         else
             return;
 
-        QVector<MessageStruct> messages = dBase.GetMessages(receiver);
+        QVector<MessageStruct> messages = m_dBase.GetMessages(receiver);
 
         for(int i=0; i<messages.size(); i++)
-            emit signalWriteMessage(receiverName,
+            emit signalWriteMessage(m_receiverName,
                                     messages[i].myAnswer?true:false,
                                     messages[i].message,
                                     messages[i].time);
@@ -164,15 +164,15 @@ void YAClient::Presenter::slotSendFile(QString path)
         else
             fileName = path.remove(0, pos+1);
 
-        dBase.Insert(MessageStruct{myReceiver, 1, "file: "+fileName, QTime::currentTime().toString()});
-        emit signalWriteMessage(myReceiver, 1, "file: "+fileName, QTime::currentTime().toString());
+        m_dBase.Insert(MessageStruct{m_myReceiver, 1, "file: "+fileName, QTime::currentTime().toString()});
+        emit signalWriteMessage(m_myReceiver, 1, "file: "+fileName, QTime::currentTime().toString());
 
         QByteArray fileContent;
         fileContent = file.readAll();
 
-        QString messForModel(myLogin+DELIM+myReceiver+DELIM+fileName);
+        QString messForModel(m_myLogin+DELIM+m_myReceiver+DELIM+fileName);
 
-        model.SendMessage(L_FILE, messForModel, fileContent);
+        m_model.SendMessage(L_FILE, messForModel, fileContent);
 
         file.close();
     }
@@ -190,18 +190,18 @@ void YAClient::Presenter::slotNewClient(const QPair<QString, clientInfo> & newCl
     QString status = newClient.second.Online?"online":"";
     QString login = newClient.first;
 
-    if(login!=myLogin)
+    if(login!=m_myLogin)
         emit signalNewUser(name,status, login);
 
-    if(login == myReceiver)
+    if(login == m_myReceiver)
         emit signalSetFriendStatus(login);
 }
 
 void YAClient::Presenter::slotNewMessage(const QString & sender, const QTime & time, const QString & message)
 {
-    dBase.Insert(MessageStruct{sender, 0, message, time.toString()});
+    m_dBase.Insert(MessageStruct{sender, 0, message, time.toString()});
 
-    if(sender == myReceiver)
+    if(sender == m_myReceiver)
         emit signalWriteMessage(sender, 0, message, time.toString());
 
     else
@@ -215,10 +215,10 @@ void YAClient::Presenter::slotNewFile(const QString & sender, const QTime & time
     QString message = "file: "+fileName;
 
     dir.mkdir("Received files");
-    dir.mkdir("Received files//"+myLogin);
-    dir.mkdir("Received files//"+myLogin+"//from "+sender);
+    dir.mkdir("Received files//"+m_myLogin);
+    dir.mkdir("Received files//"+m_myLogin+"//from "+sender);
 
-    QString filePath("Received files//"+myLogin+"//from "+sender+"//"+fileName);
+    QString filePath("Received files//"+m_myLogin+"//from "+sender+"//"+fileName);
 
     QFile rFile(filePath);
 
@@ -227,9 +227,9 @@ void YAClient::Presenter::slotNewFile(const QString & sender, const QTime & time
     else
         rFile.write(file);
 
-    dBase.Insert(MessageStruct{sender, 0, message , time.toString()});
+    m_dBase.Insert(MessageStruct{sender, 0, message , time.toString()});
 
-    if(sender == myReceiver)
+    if(sender == m_myReceiver)
         emit signalWriteMessage(sender, 0, message, time.toString());
     else
         emit signalNewMessage(sender);
@@ -250,26 +250,26 @@ void YAClient::Presenter::slotLoginExist()
 
 void YAClient::Presenter::slotOK()
 {
-    clientsMap = model.GetClients();
-    clientsMap->remove(myLogin);
+    m_clientsMap = m_model.GetClients();
+    m_clientsMap->remove(m_myLogin);
 
 
-    if(dBase.OpenDataBase())
-        dBase.CreateTabel(myLogin);
+    if(m_dBase.OpenDataBase())
+        m_dBase.CreateTabel(m_myLogin);
 
     else
         slotWriteLog("Error data base open");
 
     emit signalLoginResult(true);
     emit signalRegistrationResult(true);
-    emit signalSetTitle(myLogin);
+    emit signalSetTitle(m_myLogin);
 
-    contact = true;
+    m_contact = true;
 }
 
 void YAClient::Presenter::slotWriteLog(const QString &errStr)
 {
-    if(logFile->isOpen())
+    if(m_logFile->isOpen())
     {
         QByteArray str;
         str.append(QDateTime::currentDateTime().toString());
@@ -277,7 +277,7 @@ void YAClient::Presenter::slotWriteLog(const QString &errStr)
         str.append(errStr);
         str.append("\r\n");
 
-        logFile->write(str);
+        m_logFile->write(str);
     }
 }
 

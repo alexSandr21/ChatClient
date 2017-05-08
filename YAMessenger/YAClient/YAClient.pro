@@ -4,14 +4,14 @@ SUBDIRS = \
           src/DataBaseLib\
           src/ModelLib\
           src/PresenterLib\
-          src/PresenterApp
+          src/YAClientApp
 
 
 DataBaseLib.file = DataBaseLib/DataBaseLib.pro
 ModelLib.file = ModelLib/ModelLib.pro
 PresenterLib.file = PresenterLib/PresenterLib.pro
-PresenterApp.file = PresenterApp/PresenterApp.pro
+YAClientApp.file = YAClientApp/YAClientApp.pro
 
 PresenterLib.depends = DataBaseLib ModelLib
-PresenterApp.depends = DataBaseLib ModelLib PresenterLib
+YAClientApp.depends = DataBaseLib ModelLib PresenterLib
 

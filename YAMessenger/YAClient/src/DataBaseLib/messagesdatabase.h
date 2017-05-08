@@ -38,10 +38,10 @@ namespace YAClient
 
     private:
 
-        QSqlDatabase dBase;
-        QSqlQuery query;
-        QSqlRecord record;
-        QString name;
+        QSqlDatabase m_dBase;
+        QSqlQuery m_query;
+        QSqlRecord m_record;
+        QString m_name;
     };
 }
 

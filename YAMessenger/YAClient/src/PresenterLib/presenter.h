@@ -64,14 +64,14 @@ namespace YAClient
 
     private:
 
-        QMap<QString, clientInfo> * clientsMap;
-        std::shared_ptr<QFile> logFile;
-        QString myReceiver;
-        QString receiverName;
-        QString myLogin;
-        MessagesDataBase dBase;
-        Model model;
-        bool contact;
+        QMap<QString, clientInfo> * m_clientsMap;
+        std::shared_ptr<QFile> m_logFile;
+        QString m_myReceiver;
+        QString m_receiverName;
+        QString m_myLogin;
+        MessagesDataBase m_dBase;
+        Model m_model;
+        bool m_contact;
     };
 
 }

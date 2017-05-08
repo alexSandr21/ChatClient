@@ -15,7 +15,7 @@ CONFIG += c++11
 QML_IMPORT_PATH = ../QML
 RESOURCES += ../QML/qml.qrc
 
-TARGET = PresenterApp
+TARGET = YAClientApp
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
