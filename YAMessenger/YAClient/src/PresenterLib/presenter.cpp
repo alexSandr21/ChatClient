@@ -137,7 +137,11 @@ void YAClient::Presenter::slotSendFile(QString path)
 {
     try
     {
+#ifdef linux
+        path.remove(0, 7);
+#else
         path.remove(0, 8);
+#endif
        QFile file(path);
 
         if(!file.open(QIODevice::ReadOnly))

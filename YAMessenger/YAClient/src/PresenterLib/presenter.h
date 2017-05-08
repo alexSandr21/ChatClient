@@ -5,6 +5,9 @@
 #include <QDateTime>
 #include <vector>
 
+
+
+
 namespace YAClient
 {
     const std::vector<char> WRONGCH{'.',',','*',';',' ',':','\'','\"','|','?', '&', '$', '@', '#'};

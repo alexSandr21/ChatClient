@@ -3,6 +3,11 @@
 
 
 
+DatabaseManager::DatabaseManager::~DatabaseManager()
+{
+    m_db.close();
+}
+
 void DatabaseManager::DatabaseManager::SetLogFile(std::shared_ptr<QFile> t_pLogFile)
 {
     m_pLogFile = t_pLogFile;
@@ -10,8 +15,15 @@ void DatabaseManager::DatabaseManager::SetLogFile(std::shared_ptr<QFile> t_pLogF
 
 bool DatabaseManager::DatabaseManager::ConnectToDataBase()
 {
-    m_db = QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName("ServerDB.db");
+    if(QSqlDatabase::contains(QSqlDatabase::defaultConnection))
+    {
+        m_db = QSqlDatabase::database();
+    }
+    else
+    {
+        m_db = QSqlDatabase::addDatabase("QSQLITE");
+        m_db.setDatabaseName("ServerDB.db");
+    }
 
     if(m_db.open())
     {
@@ -20,7 +32,7 @@ bool DatabaseManager::DatabaseManager::ConnectToDataBase()
     else
     {
         //write error in log file
-        qDebug()<<m_db.lastError().text();
+        WriteToLogFile(m_db.lastError().text());
         return false;
     }
 
@@ -33,11 +45,7 @@ bool DatabaseManager::DatabaseManager::ConnectToDataBase()
         if(!qry.exec())
         {
             //write error in log file
-            qDebug()<<qry.lastError().text();
-            if(m_pLogFile->isOpen())
-            {
-                m_pLogFile->write(QByteArray::fromStdString(qry.lastError().text().toStdString()));
-            }
+            WriteToLogFile(qry.lastError().text());
             return false;
         }
     }
@@ -63,11 +71,7 @@ bool DatabaseManager::DatabaseManager::IsUsernameBusy(const QString &Username)
     }
 
     //write error in log file
-    qDebug()<<m_db.lastError().text();
-    if(m_pLogFile->isOpen())
-    {
-        m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
-    }
+    WriteToLogFile(m_db.lastError().text());
     return true;
 
 }
@@ -89,16 +93,13 @@ bool DatabaseManager::DatabaseManager::WriteToDataBase(QString Username, const Q
 
     if(qry.exec())
     {
-        qDebug()<<"Refistration succesed";
+        qDebug()<<"Registration succesed";
         return true;
     }
     else
     {
         //write error in log file
-        if(m_pLogFile->isOpen())
-        {
-            m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
-        }
+        WriteToLogFile(m_db.lastError().text());
         return false;
     }
 }
@@ -108,14 +109,13 @@ bool DatabaseManager::DatabaseManager::IsCorrectLogin(QString Username, const QB
 {
     QSqlQuery qry(m_db);
 
-    qry.prepare("SELECT Username, Password From Users WHERE Username= :name AND Password= :pass");
+    qry.prepare("SELECT Username, Password From Users WHERE Username= :name AND Password= :pass;");
     qry.bindValue(":name", Username);
     qry.bindValue(":pass", Password.toHex());
     if(qry.exec())
     {
         if(qry.next())
         {
-            qDebug()<<"Login succseed";
             return true;
         }
         qDebug()<<"Wrong Username or Password";
@@ -123,12 +123,19 @@ bool DatabaseManager::DatabaseManager::IsCorrectLogin(QString Username, const QB
     }
 
     //write error in log file
-    qDebug()<<m_db.lastError().databaseText();
+    WriteToLogFile(m_db.lastError().text());
+
+    return false;
+}
+
+void DatabaseManager::DatabaseManager::WriteToLogFile(const QString &t_errorMsg)
+{
     if(m_pLogFile->isOpen())
     {
-        m_pLogFile->write(QByteArray::fromStdString(m_db.lastError().text().toStdString()));
+        QByteArray arr;
+        arr.append(QDateTime::currentDateTime().toString() + " " + t_errorMsg + "\r\n");
+        m_pLogFile->write(arr);
     }
-    return false;
 }
 
 
@@ -155,11 +162,13 @@ void DatabaseManager::DatabaseManager::FillMapUsername(QMap<QString, ClientInfo:
     else
     {
         //write errror in log file
-        if(m_pLogFile->isOpen())
-        {
-            m_pLogFile->write(QByteArray::fromStdString(qry.lastError().text().toStdString()));
-        }
+        WriteToLogFile(qry.lastError().text());
     }
+}
+
+QSqlDatabase DatabaseManager::DatabaseManager::GetDB()
+{
+    return m_db;
 }
 
 

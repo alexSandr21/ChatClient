@@ -9,4 +9,5 @@
 #include <QFile>
 #include <QSslError>
 #include <QCryptographicHash>
+#include <exception>
 

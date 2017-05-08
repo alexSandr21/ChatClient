@@ -3,7 +3,10 @@ CONFIG += ordered
 SUBDIRS = \
           src/DatabaseManagerLib\
           src/YAServerLib\
-          src/YAServerApp \
+          src/YAServerApp
+CONFIG(debug, debug|release) {
+    SUBDIRS += src/Tests
+}
 
 YAServerApp.file = YAServerApp/YAServerApp.pro
 DatabaseManagerLib.file = DatabaseManagerLib/DatabaseManagerLib.pro

@@ -32,13 +32,15 @@ LIBS += \
 PRECOMPILED_HEADER = stdafx.h
 
 SOURCES += \
-    yaserver.cpp \
-    serverdialog.cpp
+    serverdialog.cpp \
+    clientconnection.cpp \
+    server.cpp
 
 HEADERS += \
     stdafx.h \
-    yaserver.h \
-    serverdialog.h
+    serverdialog.h \
+    clientconnection.h \
+    server.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
