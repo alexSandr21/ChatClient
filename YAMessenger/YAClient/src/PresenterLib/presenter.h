@@ -1,16 +1,24 @@
 #pragma once
-#include <QObject>
+
 #include "messagesdatabase.h"
 #include "model.h"
-#include <QDateTime>
-#include <vector>
 
 
 
 
 namespace YAClient
 {
+
+    #ifdef linux
+        const int CORRECT_FILE_PATH = 7;
+    #else
+        const int CORRECT_FILE_PATH = 8;
+    #endif
+
+    //vector of not allowed characters by registration
     const std::vector<char> WRONGCH{'.',',','*',';',' ',':','\'','\"','|','?', '&', '$', '@', '#'};
+
+    //max size of file for send
     const int MAX_FILE_SIZE = 30000000;
 
 

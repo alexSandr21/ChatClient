@@ -1,11 +1,10 @@
+#include "stdafx.h"
 #include "presenter.h"
 
 
 
-YAClient::Presenter::Presenter(std::shared_ptr<QFile> log, QObject *parent) : QObject(parent)
+YAClient::Presenter::Presenter(std::shared_ptr<QFile> log, QObject *parent) : QObject(parent),m_contact(false), m_logFile(log)
 {
-    m_contact = false;
-    m_logFile = log;
     connect(&m_model, SIGNAL(signalConnectResult(QString)), this, SIGNAL(signalConnectResult(QString)));
     connect(&m_model, SIGNAL(signalWrongLogin()), this, SLOT(slotWrongLogin()));
     connect(&m_model, SIGNAL(signalOK()), this, SLOT(slotOK()));
@@ -137,11 +136,9 @@ void YAClient::Presenter::slotSendFile(QString path)
 {
     try
     {
-#ifdef linux
-        path.remove(0, 7);
-#else
-        path.remove(0, 8);
-#endif
+
+       path.remove(0, CORRECT_FILE_PATH);
+
        QFile file(path);
 
         if(!file.open(QIODevice::ReadOnly))

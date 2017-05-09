@@ -15,6 +15,7 @@ QT       -= gui
 TARGET = ModelLib
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += precompile_header
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -28,12 +29,14 @@ INCLUDEPATH += $$PWD/../Certificates
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-PRECOMPILED_HEADER =
+PRECOMPILED_HEADER = stable.h
 
 SOURCES += model.cpp
 
 HEADERS += model.h \
-    clientinfo.h
+    clientinfo.h \
+    stdafx.h \
+    stable.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

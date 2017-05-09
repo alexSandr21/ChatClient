@@ -10,3 +10,4 @@
 #include <QCryptographicHash>
 #include <QFile>
 #include <memory>
+#include <QApplication>

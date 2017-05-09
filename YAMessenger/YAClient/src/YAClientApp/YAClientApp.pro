@@ -11,6 +11,7 @@ QT += qml quick
 QT += sql
 QT += network
 CONFIG += c++11
+CONFIG += precompile_header
 
 QML_IMPORT_PATH = ../QML
 RESOURCES += ../QML/qml.qrc
@@ -49,7 +50,10 @@ LIBS += \
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+PRECOMPILED_HEADER = stdafx.h
 
 SOURCES += main.cpp
 
-HEADERS  +=
+HEADERS  += \
+    stable.h \
+    stdafx.h

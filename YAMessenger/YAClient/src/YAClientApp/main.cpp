@@ -1,6 +1,4 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
+#include "stdafx.h"
 
 #include "presenter.h"
 

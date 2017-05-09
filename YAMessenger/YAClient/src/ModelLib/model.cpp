@@ -1,7 +1,5 @@
+#include "stdafx.h"
 #include "model.h"
-
-
-
 
 YAClient::Model::Model(QObject *parent) : QObject(parent),m_port(3004), m_blockSize(0)
 {

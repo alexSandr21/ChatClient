@@ -14,6 +14,7 @@ QT       -= gui
 TARGET = PresenterLib
 TEMPLATE = lib
 CONFIG += staticlib
+CONFIG += precompile_header
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -30,11 +31,13 @@ INCLUDEPATH += $$MODELLIB
 
 LIBS += -L$$LIB_DIR -lDataBaseLib -lModelLib
 
-PRECOMPILED_HEADER =
+PRECOMPILED_HEADER = stable.h
 
 SOURCES += presenter.cpp
 
-HEADERS += presenter.h
+HEADERS += presenter.h \
+    stable.h \
+    stdafx.h
 unix {
     target.path = /usr/lib
     INSTALLS += target

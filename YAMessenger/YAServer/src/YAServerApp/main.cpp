@@ -1,6 +1,5 @@
 #include "stdafx.h"
-#include <QApplication>
-#include "yaserver.h"
+
 #include "server.h"
 
 const int MAX_FILE_SIZE = 30000000;
