@@ -18,6 +18,11 @@ YAServer::ClientConnection::ClientConnection(ServerDialog &t_dialog,
 
 }
 
+YAServer::ClientConnection::~ClientConnection()
+{
+    m_socket.close();
+}
+
 bool YAServer::ClientConnection::SetSocketDescriptor(quintptr t_descriptor, const QSslConfiguration &t_config)
 {
     if(m_socket.setSocketDescriptor(t_descriptor))

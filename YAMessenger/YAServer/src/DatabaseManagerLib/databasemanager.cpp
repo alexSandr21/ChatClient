@@ -3,6 +3,18 @@
 
 
 
+DatabaseManager::DatabaseManager::DatabaseManager()
+{
+    if(QSqlDatabase::contains(QSqlDatabase::defaultConnection))
+    {
+        m_db = QSqlDatabase::database();
+    }
+    else
+    {
+        m_db = QSqlDatabase::addDatabase("QSQLITE");
+    }
+}
+
 DatabaseManager::DatabaseManager::~DatabaseManager()
 {
     m_db.close();
@@ -15,15 +27,8 @@ void DatabaseManager::DatabaseManager::SetLogFile(std::shared_ptr<QFile> t_pLogF
 
 bool DatabaseManager::DatabaseManager::ConnectToDataBase()
 {
-    if(QSqlDatabase::contains(QSqlDatabase::defaultConnection))
-    {
-        m_db = QSqlDatabase::database();
-    }
-    else
-    {
-        m_db = QSqlDatabase::addDatabase("QSQLITE");
-        m_db.setDatabaseName("ServerDB.db");
-    }
+
+    m_db.setDatabaseName("ServerDB.db");
 
     if(m_db.open())
     {

@@ -8,7 +8,7 @@ namespace DatabaseManager {
     {
 
     public:
-
+        DatabaseManager();
         ~DatabaseManager();
 
         void SetLogFile(std::shared_ptr<QFile> t_pLogFile);

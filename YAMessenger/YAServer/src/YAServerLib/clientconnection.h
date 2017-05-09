@@ -29,7 +29,8 @@ namespace YAServer{
     {
         Q_OBJECT
     public:
-        explicit ClientConnection(ServerDialog &t_dialog, DatabaseManager::DatabaseManager &t_dbManager, QMap<QString, ClientInfo::ClientInfo> &t_mapClients, std::shared_ptr<QFile> t_pLogFile, QObject *parent = 0);
+        ClientConnection(ServerDialog &t_dialog, DatabaseManager::DatabaseManager &t_dbManager, QMap<QString, ClientInfo::ClientInfo> &t_mapClients, std::shared_ptr<QFile> t_pLogFile, QObject *parent = 0);
+        ~ClientConnection();
 
         bool SetSocketDescriptor(quintptr t_descriptor, const QSslConfiguration& t_config);
 
