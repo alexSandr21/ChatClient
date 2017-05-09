@@ -38,14 +38,25 @@ namespace YAServer{
 
 
     private slots:
+        //Called when socket is ready to read
         void SlotReadClient();
+
+        //Send to all online users that current clien become offline
         void SlotDissconnectClient();
+
+        //Call when verify succesed
         void SlotVerifyReady();
 
     private:
         void WriteToLogFile(const QString& t_errorMsg);
+
+        //Read byte array from socket when label of message is REG or LOGIN
         void ReadClientRegLog(QDataStream& in, const int& t_typeMsg);
+
+        //Read byte array from socket when label of message is MESSAGE or L_FILE
         void ReadCLientMessage(QDataStream& in, const int& t_typeMsg);
+
+        //Write to client socket
         void SendToClient(const int& t_typeMsg, QSslSocket* t_socket, const QByteArray& t_arrBlockMsg = QByteArray());
 
     private:

@@ -24,6 +24,8 @@ struct DBFixture: public Test
     }
 
 protected:
+
+    //Write to DB if not exist user with name:'yegor' and password:'hello'
     virtual void SetUp()
     {
         QSqlQuery qry(db.GetDB());
@@ -37,6 +39,8 @@ protected:
             qry.exec();
         }
     }
+
+    //Delete from DB test user
     virtual void TearDown()
     {
         QSqlQuery qry(db.GetDB());
