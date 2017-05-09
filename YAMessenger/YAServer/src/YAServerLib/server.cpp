@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "server.h"
 
-#include <QFile>
-
 
 QByteArray certByte("-----BEGIN CERTIFICATE-----\r\n"
                     "MIIFiDCCA3ACAQEwDQYJKoZIhvcNAQELBQAwgYYxCzAJBgNVBAYTAlVBMQ8wDQYD\r\n"
@@ -91,12 +89,19 @@ QByteArray privKey("-----BEGIN RSA PRIVATE KEY-----\r\n"
 
 
 
-Connection::Server::Server(std::shared_ptr<QFile> t_pLogFile, QObject *parent) : QTcpServer(parent), m_port(1234)
+YAServer::Server::Server(std::shared_ptr<QFile> t_pLogFile, QObject *parent) : QTcpServer(parent), m_port(1234)
 {
     m_pLogFile = t_pLogFile;
 }
 
-bool Connection::Server::StartServer(const int &t_Port)
+YAServer::Server::~Server()
+{
+    close();
+    WriteToLogFile("Server closed");
+    m_pLogFile->close();
+}
+
+bool YAServer::Server::StartServer(const int &t_Port)
 {
     m_port = t_Port;
     m_dialog.show();
@@ -149,7 +154,7 @@ bool Connection::Server::StartServer(const int &t_Port)
     return true;
 }
 
-QString Connection::Server::GetIP()
+QString YAServer::Server::GetIP()
 {
     auto address = QNetworkInterface::allAddresses();
 
@@ -163,7 +168,7 @@ QString Connection::Server::GetIP()
     return QHostAddress(QHostAddress::LocalHost).toString() + " : " + QString(std::to_string(m_port).c_str());
 }
 
-void Connection::Server::incomingConnection(qintptr handle)
+void YAServer::Server::incomingConnection(qintptr handle)
 {
     ClientConnection* client = new ClientConnection(m_dialog, m_dbManager, m_mapClients, m_pLogFile, this);
 
@@ -179,7 +184,7 @@ void Connection::Server::incomingConnection(qintptr handle)
 
 }
 
-void Connection::Server::WriteToLogFile(const QString &t_errorMsg)
+void YAServer::Server::WriteToLogFile(const QString &t_errorMsg)
 {
     if(m_pLogFile->isOpen())
     {

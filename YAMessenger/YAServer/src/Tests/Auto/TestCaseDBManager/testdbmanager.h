@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
-#include <gmock/gmock-matchers.h>
+#pragma once
+#include "stdafx.h"
 #include "databasemanager.h"
 
 using namespace testing;

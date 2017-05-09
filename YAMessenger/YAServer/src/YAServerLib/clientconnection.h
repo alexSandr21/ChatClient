@@ -1,14 +1,12 @@
 #pragma once
 
-#include "databasemanager.h"
 #include "clientinfo.h"
-#include "serverdialog.h"
-#include <QObject>
-#include <QSslConfiguration>
-#include <memory>
 
-namespace Connection{
+namespace DatabaseManager {
+    class DatabaseManager;
+}
 
+namespace TypeMsg{
     enum
     {
         REG,
@@ -20,6 +18,12 @@ namespace Connection{
         REG_ERROR,
         L_FILE
     };
+
+}
+namespace YAServer{
+
+    class ServerDialog;
+
 
     class ClientConnection : public QObject
     {
@@ -38,17 +42,20 @@ namespace Connection{
         void SlotVerifyReady();
 
     private:
-        QSslSocket m_socket;
-        DatabaseManager::DatabaseManager* m_pDbManager;
-        QMap<QString,ClientInfo::ClientInfo>* m_pMapClients;
-        ServerDialog* m_pDialog;
-        std::shared_ptr<QFile> m_pLogFile;
-        uint m_nextBlockSize;
-
         void WriteToLogFile(const QString& t_errorMsg);
         void ReadClientRegLog(QDataStream& in, const int& t_typeMsg);
         void ReadCLientMessage(QDataStream& in, const int& t_typeMsg);
         void SendToClient(const int& t_typeMsg, QSslSocket* t_socket, const QByteArray& t_arrBlockMsg = QByteArray());
+
+    private:
+        QSslSocket m_socket;
+        DatabaseManager::DatabaseManager &m_rDbManager;
+        QMap<QString,ClientInfo::ClientInfo> &m_rMapClients;
+        ServerDialog &m_rDialog;
+        std::shared_ptr<QFile> m_pLogFile;
+        uint m_nextBlockSize;
+
+
     };
 
 

@@ -1,11 +1,5 @@
 #pragma once
-
-#include <QtSql>
-#include <memory>
-
 #include "clientinfo.h"
-
-
 
 
 namespace DatabaseManager {
@@ -34,6 +28,6 @@ namespace DatabaseManager {
     private:
             QSqlDatabase m_db;
             std::shared_ptr<QFile> m_pLogFile;
-};
+    };
 
 }

@@ -2,23 +2,23 @@
 #include "serverdialog.h"
 #include "ui_serverdialog.h"
 
-ServerDialog::ServerDialog(QWidget *parent) :
+YAServer::ServerDialog::ServerDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ServerDialog)
+    m_pUi(new Ui::ServerDialog)
 {
-    ui->setupUi(this);
+    m_pUi->setupUi(this);
 }
 
-void ServerDialog::SetIpInfo(QString strIp)
+void YAServer::ServerDialog::SetIpInfo(QString strIp)
 {
-    ui->lblServerIP->setText(strIp);
+    m_pUi->lblServerIP->setText(strIp);
 }
 
-void ServerDialog::WriteToTextBrowser(QString strMsg)
+void YAServer::ServerDialog::WriteToTextBrowser(QString strMsg)
 {
-    ui->txtBServerInfo->append(strMsg);
+    m_pUi->txtBServerInfo->append(strMsg);
 }
-ServerDialog::~ServerDialog()
+YAServer::ServerDialog::~ServerDialog()
 {
-    delete ui;
+    delete m_pUi;
 }

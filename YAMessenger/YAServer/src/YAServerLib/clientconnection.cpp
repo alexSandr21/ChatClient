@@ -1,20 +1,24 @@
 #include "stdafx.h"
 #include "clientconnection.h"
+#include "databasemanager.h"
+#include "serverdialog.h"
 
 
-Connection::ClientConnection::ClientConnection(ServerDialog &t_dialog,
+YAServer::ClientConnection::ClientConnection(ServerDialog &t_dialog,
                                                DatabaseManager::DatabaseManager &t_dbManager,
                                                QMap<QString, ClientInfo::ClientInfo> &t_mapClients,
-                                               std::shared_ptr<QFile> t_pLogFile, QObject *parent): QObject(parent),
-                                                                                                    m_pLogFile(t_pLogFile),
-                                                                                                    m_nextBlockSize(0)
+                                               std::shared_ptr<QFile> t_pLogFile, QObject *parent):
+    QObject(parent),
+    m_pLogFile(t_pLogFile),
+    m_nextBlockSize(0),
+    m_rDbManager(t_dbManager),
+    m_rMapClients(t_mapClients),
+    m_rDialog(t_dialog)
 {
-    m_pDbManager = &t_dbManager;
-    m_pMapClients = &t_mapClients;
-    m_pDialog = &t_dialog;
+
 }
 
-bool Connection::ClientConnection::SetSocketDescriptor(quintptr t_descriptor, const QSslConfiguration &t_config)
+bool YAServer::ClientConnection::SetSocketDescriptor(quintptr t_descriptor, const QSslConfiguration &t_config)
 {
     if(m_socket.setSocketDescriptor(t_descriptor))
     {
@@ -40,13 +44,13 @@ bool Connection::ClientConnection::SetSocketDescriptor(quintptr t_descriptor, co
     }
 }
 
-QSslSocket* Connection::ClientConnection::socket()
+QSslSocket* YAServer::ClientConnection::socket()
 {
     return &m_socket;
 }
 
 
-void Connection::ClientConnection::SlotReadClient()
+void YAServer::ClientConnection::SlotReadClient()
 {
     QDataStream in(&m_socket);
     in.setVersion(QDataStream::Qt_DefaultCompiledVersion);
@@ -65,21 +69,21 @@ void Connection::ClientConnection::SlotReadClient()
 
     in>>typeMsg>>time;
 
-    if(typeMsg == MESSAGE||typeMsg == L_FILE)
+    if(typeMsg == TypeMsg::MESSAGE||typeMsg == TypeMsg::L_FILE)
         ReadCLientMessage(in, typeMsg);
 
-    else if(typeMsg == REG || typeMsg == LOGIN)
+    else if(typeMsg == TypeMsg::REG || typeMsg == TypeMsg::LOGIN)
         ReadClientRegLog(in, typeMsg);
 
     m_nextBlockSize = 0;
 }
 
-void Connection::ClientConnection::SlotDissconnectClient()
+void YAServer::ClientConnection::SlotDissconnectClient()
 {
 
-    auto it = m_pMapClients->begin();
+    auto it = m_rMapClients.begin();
 
-    for( ; it != m_pMapClients->end(); ++it)
+    for( ; it != m_rMapClients.end(); ++it)
     {
         if(it.value().pClientSocket == &m_socket)
         {
@@ -87,14 +91,14 @@ void Connection::ClientConnection::SlotDissconnectClient()
         }
     }
 
-    if(it == m_pMapClients->end())
+    if(it == m_rMapClients.end())
     {
         return;
     }
 
     it.value().pClientSocket->close();
     it.value().pClientSocket = nullptr;
-    m_pDialog->WriteToTextBrowser("Client "+it.key()+" disconnect from the server");
+    m_rDialog.WriteToTextBrowser("Client "+it.key()+" disconnect from the server");
 
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
@@ -102,20 +106,20 @@ void Connection::ClientConnection::SlotDissconnectClient()
 
     out<<qMakePair(it.key(),it.value());
 
-    for(it = m_pMapClients->begin();it!= m_pMapClients->end();++it)
+    for(it = m_rMapClients.begin();it!= m_rMapClients.end();++it)
     {
         if(it.value().pClientSocket)
-            SendToClient(UPDATE, it.value().pClientSocket, arrBlock);
+            SendToClient(TypeMsg::UPDATE, it.value().pClientSocket, arrBlock);
     }
 }
 
-void Connection::ClientConnection::SlotVerifyReady()
+void YAServer::ClientConnection::SlotVerifyReady()
 {
     qDebug()<<"Client verified";
 }
 
 
-void Connection::ClientConnection::WriteToLogFile(const QString &t_errorMsg)
+void YAServer::ClientConnection::WriteToLogFile(const QString &t_errorMsg)
 {
     if(m_pLogFile->isOpen())
     {
@@ -125,7 +129,7 @@ void Connection::ClientConnection::WriteToLogFile(const QString &t_errorMsg)
     }
 }
 
-void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &t_typeMsg)
+void YAServer::ClientConnection::ReadClientRegLog(QDataStream &in, const int &t_typeMsg)
 {
     try
     {
@@ -137,16 +141,16 @@ void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &
 
     strVec = strMsg.split(ClientInfo::DELIM).toVector();
 
-    if(strVec.size()<2 && t_typeMsg == LOGIN)
+    if(strVec.size()<2 && t_typeMsg == TypeMsg::LOGIN)
     {
         WriteToLogFile("Error: Can`t correct split client message. LOG_RROR");
-        SendToClient(LOG_ERROR, &m_socket);
+        SendToClient(TypeMsg::LOG_ERROR, &m_socket);
         return;
     }
-    else if(strVec.size()<4 && t_typeMsg == REG)
+    else if(strVec.size()<4 && t_typeMsg == TypeMsg::REG)
     {
         WriteToLogFile("Error: Can`t correct split client message. REG_ERROR");
-        SendToClient(REG_ERROR, &m_socket);
+        SendToClient(TypeMsg::REG_ERROR, &m_socket);
         return;
     }
 
@@ -154,7 +158,7 @@ void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &
     UserName = strVec[0];
     Password = strVec[1];
 
-    if(t_typeMsg == REG)
+    if(t_typeMsg == TypeMsg::REG)
     {
 
 
@@ -164,52 +168,52 @@ void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &
         StructUI.pClientSocket = &m_socket;
 
 
-        if(m_pDbManager->IsUsernameBusy(UserName))
+        if(m_rDbManager.IsUsernameBusy(UserName))
         {
-            SendToClient(REG_ERROR, &m_socket);
+            SendToClient(TypeMsg::REG_ERROR, &m_socket);
             return;
         }
 
-        if(!m_pDbManager->WriteToDataBase(UserName, QCryptographicHash::hash(QByteArray::fromStdString(Password.toStdString()), QCryptographicHash::Sha3_384), StructUI))
+        if(!m_rDbManager.WriteToDataBase(UserName, QCryptographicHash::hash(QByteArray::fromStdString(Password.toStdString()), QCryptographicHash::Sha3_384), StructUI))
         {
             WriteToLogFile("Error: DB error");
-            SendToClient(REG_ERROR, &m_socket);
+            SendToClient(TypeMsg::REG_ERROR, &m_socket);
             return;
         }
 
         qDebug()<<"Client "<<UserName<<" registrate at server";
-        m_pDialog->WriteToTextBrowser("Client " + UserName +" registrate at server");
+        m_rDialog.WriteToTextBrowser("Client " + UserName +" registrate at server");
     }
-    else if(t_typeMsg == LOGIN)
+    else if(t_typeMsg == TypeMsg::LOGIN)
     {
 
 
-        if(!m_pDbManager->IsCorrectLogin(UserName,QCryptographicHash::hash(QByteArray::fromStdString(Password.toStdString()), QCryptographicHash::Sha3_384)))
+        if(!m_rDbManager.IsCorrectLogin(UserName,QCryptographicHash::hash(QByteArray::fromStdString(Password.toStdString()), QCryptographicHash::Sha3_384)))
         {
-            SendToClient(LOG_ERROR, &m_socket);
+            SendToClient(TypeMsg::LOG_ERROR, &m_socket);
             return;
         }
 
 
-        StructUI = m_pMapClients->value(UserName);
+        StructUI = m_rMapClients.value(UserName);
 
         if(StructUI.name.isEmpty())
         {
-            SendToClient(LOG_ERROR, &m_socket);
+            SendToClient(TypeMsg::LOG_ERROR, &m_socket);
             return;
         }
 
         if(StructUI.pClientSocket)
         {
             qDebug()<<"User already online";
-            SendToClient(LOG_ERROR, &m_socket);
+            SendToClient(TypeMsg::LOG_ERROR, &m_socket);
             return;
         }
 
         StructUI.pClientSocket = &m_socket;
 
         qDebug()<<"Client "<<UserName<<" login to the server";
-        m_pDialog->WriteToTextBrowser("Client "+ UserName + " login to the server");
+        m_rDialog.WriteToTextBrowser("Client "+ UserName + " login to the server");
     }
     else
     {
@@ -220,7 +224,7 @@ void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &
     }
 
 
-    m_pMapClients->insert(UserName, StructUI);
+    m_rMapClients.insert(UserName, StructUI);
 
 
     QByteArray arrBlock;
@@ -230,24 +234,24 @@ void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &
     out<<qMakePair(UserName, StructUI);
 
 
-    for(auto currUsername:m_pMapClients->keys())
+    for(auto currUsername:m_rMapClients.keys())
     {
         if(currUsername == UserName)
         {
 
             arrBlock.clear();
             out.device()->reset();
-            out<<*m_pMapClients;
-            SendToClient(OK, &m_socket, arrBlock);
+            out<<m_rMapClients;
+            SendToClient(TypeMsg::OK, &m_socket, arrBlock);
 
 
             arrBlock.clear();
             out.device()->reset();
             out<<qMakePair(UserName, StructUI);
         }
-        else if(m_pMapClients->value(currUsername).pClientSocket)
+        else if(m_rMapClients.value(currUsername).pClientSocket)
         {
-            SendToClient(UPDATE, m_pMapClients->value(currUsername).pClientSocket, arrBlock);
+            SendToClient(TypeMsg::UPDATE, m_rMapClients.value(currUsername).pClientSocket, arrBlock);
         }
     }
     }
@@ -258,7 +262,7 @@ void Connection::ClientConnection::ReadClientRegLog(QDataStream &in, const int &
     }
 }
 
-void Connection::ClientConnection::ReadCLientMessage(QDataStream &in, const int &t_typeMsg)
+void YAServer::ClientConnection::ReadCLientMessage(QDataStream &in, const int &t_typeMsg)
 {
     try
     {
@@ -268,7 +272,7 @@ void Connection::ClientConnection::ReadCLientMessage(QDataStream &in, const int 
 
         in>>strMsg;
 
-        if(t_typeMsg == L_FILE)
+        if(t_typeMsg == TypeMsg::L_FILE)
             file = in.device()->readAll();
 
         strVec = strMsg.split(ClientInfo::DELIM).toVector();
@@ -291,11 +295,11 @@ void Connection::ClientConnection::ReadCLientMessage(QDataStream &in, const int 
 
         out<<strMsg;
 
-        if(t_typeMsg == L_FILE)
+        if(t_typeMsg == TypeMsg::L_FILE)
             arrBlock.append(file);
 
 
-        SendToClient(t_typeMsg, m_pMapClients->value(strReciever).pClientSocket, arrBlock);
+        SendToClient(t_typeMsg, m_rMapClients.value(strReciever).pClientSocket, arrBlock);
     }
     catch(const std::exception &ex)
     {
@@ -304,7 +308,7 @@ void Connection::ClientConnection::ReadCLientMessage(QDataStream &in, const int 
     }
 }
 
-void Connection::ClientConnection::SendToClient(const int &t_typeMsg, QSslSocket *t_socket, const QByteArray &t_arrBlockMsg)
+void YAServer::ClientConnection::SendToClient(const int &t_typeMsg, QSslSocket *t_socket, const QByteArray &t_arrBlockMsg)
 {
     try
     {

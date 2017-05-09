@@ -1,8 +1,7 @@
+#include "stdafx.h"
 #include <QApplication>
 #include "yaserver.h"
 #include "server.h"
-#include <QFile>
-#include <memory>
 
 const int MAX_FILE_SIZE = 30000000;
 
@@ -23,7 +22,7 @@ int main(int argc, char *argv[])
 //    server.StartServer(3004);
     try
     {
-        Connection::Server server(file);
+        YAServer::Server server(file);
         server.StartServer(3004);
         return a.exec();
     }
