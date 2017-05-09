@@ -53,6 +53,8 @@ namespace YAClient
         ~Model();
 
         void connectToHost(const QString &hostIP);
+
+        //clients map, key(login), value(clientInfo struct object)
         QMap<QString, clientInfo>*GetClients();
 
     signals:

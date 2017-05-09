@@ -11,7 +11,7 @@ YAClient::MessagesDataBase::MessagesDataBase(QObject *parent) : QObject(parent)
 
 }
 
-int YAClient::MessagesDataBase::OpenDataBase()
+bool YAClient::MessagesDataBase::OpenDataBase()
 {
     return m_dBase.open();
 }

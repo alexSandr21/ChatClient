@@ -5,6 +5,7 @@
 
 namespace YAClient
 {
+    //labels for protocol
     enum {L_REG, L_LOG, L_MESS, L_OK, L_ERROR, L_NEWCLIENT, L_LOGINEXIST, L_FILE};
     const char DELIM = '|';
 
